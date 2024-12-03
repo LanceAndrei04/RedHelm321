@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/bottom_nav_connect"
+        android:icon="@drawable/ic_connect"
+        android:title="Connect"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/bottom_nav_hotline"
+        android:icon="@drawable/ic_hotline"
+        android:title="Hotline"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/bottom_nav_status"
+        android:icon="@drawable/ic_status"
+        android:title="Status"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/bottom_nav_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile"
+        app:showAsAction="ifRoom"/>
+</menu>
