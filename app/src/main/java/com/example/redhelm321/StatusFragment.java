@@ -10,9 +10,14 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.redhelm321.database.DatabaseManager;
+import com.example.redhelm321.database.ReadCallback;
+import com.example.redhelm321.profile.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class StatusFragment extends Fragment {
     private ImageView profileImageView, contactImageView;
@@ -20,9 +25,42 @@ public class StatusFragment extends Fragment {
     private TextInputLayout reportInputLayout;
     private TextInputEditText reportEditText;
 
+    FirebaseAuth mAuth;
+    DatabaseManager dbManager;
+    private String userProfilePath;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_status, container, false);
+
+        InitializeComponent(view);
+        loadProfileFromDatabase();
+
+        return view;
+    }
+
+    private void loadProfileFromDatabase() {
+        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+            @Override
+            public void onSuccess(UserProfile data) {
+                updateProfileUI(data);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
+
+    private void updateProfileUI(UserProfile userProfile) {
+        UserProfile.setImageToImageView(getContext(), profileImageView, String.valueOf(mAuth.getCurrentUser().getPhotoUrl()));
+    }
+
+    private void InitializeComponent(View view) {
+        mAuth = FirebaseAuth.getInstance();
+        dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
+        userProfilePath = dbManager.getUserProfilePath();
 
         // Initialize views
         profileImageView = view.findViewById(R.id.profileImageView);
@@ -63,8 +101,6 @@ public class StatusFragment extends Fragment {
                 Toast.makeText(requireContext(), "Please enter report details.", Toast.LENGTH_SHORT).show();
             }
         });
-
-        return view;
     }
 
     private void setImageClickListener(ImageView imageView, String name, String status, String lastUpdate, String... extraDetails) {

@@ -3,7 +3,6 @@ package com.example.redhelm321;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.os.Handler;
-import android.service.controls.actions.FloatAction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,10 +43,15 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        InitiliazeComponent(view);
-        loadProfileFromDatabase();
+        InitializeComponent(view);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadProfileFromDatabase();
     }
 
     private void loadProfileFromDatabase() {
@@ -65,9 +69,10 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void InitiliazeComponent(View view) {
+    private void InitializeComponent(View view) {
         mAuth = FirebaseAuth.getInstance();
         dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
+
 
         iv_profileImageView = view.findViewById(R.id.profileImageView);
         fbtn_editImageButton = view.findViewById(R.id.editImageButton);

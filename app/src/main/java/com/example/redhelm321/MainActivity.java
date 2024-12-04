@@ -47,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference FBDB_profilesRef;
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
-    private Fragment connectFragment = new ConnectFragment();
-    private Fragment hotlineFragment = new HotlineFragment();
-    private Fragment statusFragment = new StatusFragment();
-    private Fragment profileFragment = new ProfileFragment();
+    private Fragment connectFragment;
+    private Fragment hotlineFragment;
+    private Fragment statusFragment;
+    private Fragment profileFragment;
 
-    private Fragment activeFragment = connectFragment;
+    private Fragment activeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +62,10 @@ public class MainActivity extends AppCompatActivity {
         frameLayout = findViewById(R.id.frame_layout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
-        initializeFragments();
         InitializeAuth();
+        HandleUserAuthentication();
+//        initializeFragments();
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -73,13 +75,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
 
+        @Override
+    protected void onResume() {
+        super.onResume();
+        if(mAuth.getCurrentUser() != null) {
+            HandleUserAuthentication();
+            connectFragment = new ConnectFragment();
+            hotlineFragment = new HotlineFragment();
+            statusFragment = new StatusFragment();
+            profileFragment = new ProfileFragment();
+
+            activeFragment = connectFragment;
+
+            initializeFragments();
+        }
     }
 
     private void initializeFragments() {
-        addFragmentToManager(profileFragment, "PROFILE");
-        addFragmentToManager(statusFragment, "STATUS");
-        addFragmentToManager(hotlineFragment, "HOTLINE");
+        addFragmentToManager(profileFragment, "PROFILE", true);
+        addFragmentToManager(statusFragment, "STATUS", true);
+        addFragmentToManager(hotlineFragment, "HOTLINE", true);
         addFragmentToManager(connectFragment, "CONNECT", false);
     }
 
@@ -112,13 +129,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        HandleUserAuthentication();
-    }
+
 
     private void HandleUserAuthentication() {
+
         if(mAuth.getCurrentUser() == null) {
             Toast.makeText(this, "Please log in first.",
                     Toast.LENGTH_SHORT).show();
