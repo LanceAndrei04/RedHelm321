@@ -26,6 +26,7 @@ public class ConnectFragment extends Fragment {
     Button btn_db_debug, btn_db_read_debug;
     DatabaseManager dbManager;
     FirebaseAuth mAuth;
+    String userProfilePath;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,8 +40,9 @@ public class ConnectFragment extends Fragment {
     }
 
     private void InitializeComponents(View rootView) {
-        dbManager = DatabaseManager.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
+        userProfilePath = dbManager.getUserProfilePath();
 
         btn_db_read_debug = rootView.findViewById(R.id.btn_db_read_debug);
         btn_db_read_debug.setOnClickListener(new View.OnClickListener() {
@@ -63,8 +65,6 @@ public class ConnectFragment extends Fragment {
     }
 
     private void btn_db_read_debug_OnClick() {
-        String userProfilePath = "profiles/" + mAuth.getCurrentUser().getUid();
-
         dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
             @Override
             public void onSuccess(UserProfile data) {
@@ -80,10 +80,8 @@ public class ConnectFragment extends Fragment {
     }
 
     private void btn_db_debug_OnClick() {
-        String userProfilePath = "profiles/" + mAuth.getCurrentUser().getUid();
-
         UserProfile userProfile = new UserProfile.Builder()
-                .setName("MyName")
+                .setName("IbangMyName")
                 .setAddress("MyAddress")
                 .setBirthDate("MyBDate")
                 .setPhoneNumber("MyPhone")

@@ -10,18 +10,27 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     private final DatabaseReference databaseReference;
 
+    public final static String PROFILE_PATH = "profiles";
+
+    private String userId;
+
     // Private constructor for Singleton
-    private DatabaseManager() {
+    private DatabaseManager(String userId) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference();
+        this.userId = userId;
     }
 
     // Get the singleton instance
-    public static synchronized DatabaseManager getInstance() {
+    public static synchronized DatabaseManager getInstance(String userId) {
         if (instance == null) {
-            instance = new DatabaseManager();
+            instance = new DatabaseManager(userId);
         }
         return instance;
+    }
+
+    public String getUserProfilePath() {
+        return PROFILE_PATH + "/" + userId;
     }
 
     // Save data to a specific path
