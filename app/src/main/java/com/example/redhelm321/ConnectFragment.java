@@ -81,7 +81,7 @@ public class ConnectFragment extends Fragment {
 
     private void btn_db_debug_OnClick() {
         UserProfile userProfile = new UserProfile.Builder()
-                .setName("IbangMyName")
+                .setName("NewIbangMyName")
                 .setAddress("MyAddress")
                 .setBirthDate("MyBDate")
                 .setPhoneNumber("MyPhone")
