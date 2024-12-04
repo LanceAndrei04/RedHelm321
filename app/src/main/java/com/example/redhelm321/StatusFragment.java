@@ -2,6 +2,8 @@ package com.example.redhelm321;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.redhelm321.database.DatabaseCallback;
 import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.database.ReadCallback;
 import com.example.redhelm321.profile.UserProfile;
@@ -27,6 +30,7 @@ public class StatusFragment extends Fragment {
 
     FirebaseAuth mAuth;
     DatabaseManager dbManager;
+    UserProfile currentUserProfile;
     private String userProfilePath;
 
     @Override
@@ -43,6 +47,12 @@ public class StatusFragment extends Fragment {
         dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
             @Override
             public void onSuccess(UserProfile data) {
+                currentUserProfile = data;
+
+                String currentStatus = currentUserProfile.getStatus() != null ? currentUserProfile.getStatus() : "Safe";
+                String latestTimeStatusUpdate = currentUserProfile.getLatestTimeStatusUpdate() != null ? currentUserProfile.getLatestTimeStatusUpdate() : "N/A";
+                setImageClickListener(profileImageView, currentUserProfile.getName(), currentStatus, latestTimeStatusUpdate);
+
                 updateProfileUI(data);
             }
 
@@ -54,7 +64,11 @@ public class StatusFragment extends Fragment {
     }
 
     private void updateProfileUI(UserProfile userProfile) {
-        UserProfile.setImageToImageView(getContext(), profileImageView, String.valueOf(mAuth.getCurrentUser().getPhotoUrl()));
+        String profileImgUrl =
+                mAuth.getCurrentUser().getPhotoUrl() != null ?
+                        mAuth.getCurrentUser().getPhotoUrl().toString() :
+                        UserProfile.DEFAULT_PROFILE_PIC;
+        UserProfile.setImageToImageView(getContext(), profileImageView, profileImgUrl);
     }
 
     private void InitializeComponent(View view) {
@@ -73,34 +87,98 @@ public class StatusFragment extends Fragment {
 
         // Set click listeners for status buttons
         markSafeButton.setOnClickListener(v -> {
-            profileImageView.setBackground(getResources().getDrawable(R.drawable.circle_border_green, requireContext().getTheme()));
-            reportInputLayout.setVisibility(View.GONE);
-            sendReportButton.setVisibility(View.GONE);
+            markSafeButton_OnClick(v);
         });
 
         needHelpButton.setOnClickListener(v -> {
-            profileImageView.setBackground(getResources().getDrawable(R.drawable.circle_border_red, requireContext().getTheme()));
-            reportInputLayout.setVisibility(View.VISIBLE);
-            sendReportButton.setVisibility(View.VISIBLE);
+            needHelpButton_OnClick(v);
         });
 
         // Set click listeners for profile images
-        setImageClickListener(profileImageView, "Red Helm", "Safe", "Yesterday");
         setImageClickListener(contactImageView, "BSU ALANGILAN", "Need Help", "Today", "Report detail", "Location detail");
 
         // Set click listener for send button
         sendReportButton.setOnClickListener(v -> {
-            String report = reportEditText.getText().toString().trim();
-            if (!report.isEmpty()) {
-                Toast.makeText(requireContext(), "Report sent: " + report, Toast.LENGTH_SHORT).show();
-                reportInputLayout.setVisibility(View.GONE);
-                sendReportButton.setVisibility(View.GONE);
-                // Update the report detail in the popup
-                setImageClickListener(profileImageView, "Red Helm", "Need Help", "Today", report, "Location detail");
-            } else {
-                Toast.makeText(requireContext(), "Please enter report details.", Toast.LENGTH_SHORT).show();
+            sendReportButton_OnClick(v);
+        });
+    }
+
+    private void needHelpButton_OnClick(View v) {
+        profileImageView.setBackground(getResources().getDrawable(R.drawable.circle_border_red, requireContext().getTheme()));
+        reportInputLayout.setVisibility(View.VISIBLE);
+        sendReportButton.setVisibility(View.VISIBLE);
+    }
+
+    private void markSafeButton_OnClick(View v) {
+        profileImageView.setBackground(getResources().getDrawable(R.drawable.circle_border_green, requireContext().getTheme()));
+        reportInputLayout.setVisibility(View.GONE);
+        sendReportButton.setVisibility(View.GONE);
+
+        String userStatusPath = dbManager.getUserProfilePath() + "/status";
+        dbManager.saveData(userStatusPath, "Safe", new DatabaseCallback() {
+            @Override
+            public void onSuccess() {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "You've been marked safe",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "Failed to mark you safe",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
             }
         });
+    }
+
+    private void sendReportButton_OnClick(View v) {
+        String report = reportEditText.getText().toString().trim();
+        if (!report.isEmpty()) {
+            Toast.makeText(requireContext(), "Report sent: " + report, Toast.LENGTH_SHORT).show();
+            reportInputLayout.setVisibility(View.GONE);
+            sendReportButton.setVisibility(View.GONE);
+
+            String userStatusPath = dbManager.getUserProfilePath() + "/status";
+            dbManager.saveData(userStatusPath, report, new DatabaseCallback() {
+                @Override
+                public void onSuccess() {
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "Report sent",
+                                            Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "Failed to send report",
+                                            Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+                }
+            });
+
+        } else {
+            Toast.makeText(requireContext(), "Please enter report details.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setImageClickListener(ImageView imageView, String name, String status, String lastUpdate, String... extraDetails) {

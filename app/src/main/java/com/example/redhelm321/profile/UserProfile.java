@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 
 public class UserProfile {
+    public static final String DEFAULT_PROFILE_PIC = "https://i.imgur.com/ACeuiSf.png";
     private String userImgLink;
     private String name;
     private int age;
@@ -14,13 +15,16 @@ public class UserProfile {
     private String address;
     private String phoneNumber;
     private String bloodType;
+    private String email;
+    private String status;
+    private String latestTimeStatusUpdate;
 
     // Default no-argument constructor required by Firebase
     public UserProfile() {
     }
 
     // Constructor for manual instantiation
-    public UserProfile(String userImgLink, String name, int age, String birthDate, String address, String phoneNumber, String bloodType) {
+    public UserProfile(String userImgLink, String name, int age, String birthDate, String address, String phoneNumber, String bloodType, String email, String status, String latestTimeStatusUpdate) {
         this.userImgLink = userImgLink;
         this.name = name;
         this.age = age;
@@ -28,6 +32,10 @@ public class UserProfile {
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.bloodType = bloodType;
+        this.email = email;
+        this.status = status;
+        this.latestTimeStatusUpdate = latestTimeStatusUpdate;
+
     }
 
     // Method to set image to an ImageView using Glide
@@ -35,6 +43,22 @@ public class UserProfile {
         Glide.with(context)
                 .load(userImgLink)
                 .into(imageView); // Target ImageView
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getLatestTimeStatusUpdate() {
+        return latestTimeStatusUpdate;
+    }
+
+    public void setLatestTimeStatusUpdate(String latestTimeStatusUpdate) {
+        this.latestTimeStatusUpdate = latestTimeStatusUpdate;
     }
 
     // Getters and Setters (Firebase needs these or public fields)
@@ -94,6 +118,15 @@ public class UserProfile {
         this.bloodType = bloodType;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
     // Static Builder Class for manual creation
     public static class Builder {
         private String userImgLink;
@@ -103,6 +136,24 @@ public class UserProfile {
         private String address;
         private String phoneNumber;
         private String bloodType;
+        private String email;
+        private String status;
+        private String latestTimeStatusUpdate;
+
+        public Builder setLatestTimeStatusUpdate(String latestTimeStatusUpdate) {
+            this.latestTimeStatusUpdate = latestTimeStatusUpdate;
+            return this;
+        }
+
+        public Builder setStatus(String status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder setEmail(String email) {
+            this.email = email;
+            return this;
+        }
 
         public Builder setUserImgLink(String userImgLink) {
             this.userImgLink = userImgLink;
@@ -140,7 +191,7 @@ public class UserProfile {
         }
 
         public UserProfile build() {
-            return new UserProfile(userImgLink, name, age, birthDate, address, phoneNumber, bloodType);
+            return new UserProfile(userImgLink, name, age, birthDate, address, phoneNumber, bloodType, email, status, latestTimeStatusUpdate);
         }
     }
 }

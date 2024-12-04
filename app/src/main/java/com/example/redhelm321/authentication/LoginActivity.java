@@ -16,6 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.redhelm321.MainActivity;
 import com.example.redhelm321.R;
+import com.example.redhelm321.database.DatabaseCallback;
+import com.example.redhelm321.database.DatabaseManager;
+import com.example.redhelm321.profile.UserProfile;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -43,24 +46,20 @@ public class LoginActivity extends AppCompatActivity {
     private DatabaseReference FBDB_profilesRef;
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
+    DatabaseManager dbManager;
+
     MaterialButton btn_loginButton, btn_google_signIn_button;
     EditText et_email_input, et_password_input;
+    private String userProfilePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-//        Toast.makeText(this, "DEBUG", Toast.LENGTH_SHORT).show();
 
         InitializeComponents();
         InitializeAuthentication();
     }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        HandleUserAuthentication();
-//    }
 
     private void HandleUserAuthentication() {
         if (mAuth.getCurrentUser() != null) {
@@ -70,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void InitializeComponents() {
-
         et_email_input = findViewById(R.id.et_email_input);
         et_password_input = findViewById(R.id.et_password_input);
         btn_google_signIn_button = findViewById(R.id.btn_google_signin_button);
@@ -141,9 +139,29 @@ public class LoginActivity extends AppCompatActivity {
                 mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+
                         Toast.makeText(LoginActivity.this, "Successfully signed in with Google!", Toast.LENGTH_SHORT).show();
                         FirebaseUser user = mAuth.getCurrentUser();
-                        openMainScreen();
+                        UserProfile newUserProfile = new UserProfile.Builder()
+                                .setName(user.getDisplayName())
+                                .setPhoneNumber(user.getPhoneNumber())
+                                .setEmail(user.getEmail())
+                                .setUserImgLink(String.valueOf(user.getPhotoUrl()))
+                                .build();
+
+                        dbManager = DatabaseManager.getInstance(user.getUid());
+                        userProfilePath = dbManager.getUserProfilePath();
+                        dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
+                            @Override
+                            public void onSuccess() {
+                                openMainScreen();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+
+                            }
+                        });
                     }
                 });
             }
@@ -198,6 +216,27 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
+
+                            UserProfile newUserProfile = new UserProfile.Builder()
+                                    .setName(user.getDisplayName())
+                                    .setPhoneNumber(user.getPhoneNumber())
+                                    .setEmail(user.getEmail())
+                                    .setUserImgLink(user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : UserProfile.DEFAULT_PROFILE_PIC)
+                                    .build();
+
+                            dbManager = DatabaseManager.getInstance(user.getUid());
+                            userProfilePath = dbManager.getUserProfilePath();
+                            dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    openMainScreen();
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+
+                                }
+                            });
                             openMainScreen();
                         } else {
                             Toast.makeText(LoginActivity.this, "Authentication failed.",

@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference FBDB_profilesRef;
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
+    FragmentManager fragmentManager;
     private Fragment connectFragment;
     private Fragment hotlineFragment;
     private Fragment statusFragment;
@@ -64,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
 
         InitializeAuth();
         HandleUserAuthentication();
-//        initializeFragments();
 
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -81,14 +81,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if(mAuth.getCurrentUser() != null) {
-            HandleUserAuthentication();
             connectFragment = new ConnectFragment();
             hotlineFragment = new HotlineFragment();
             statusFragment = new StatusFragment();
             profileFragment = new ProfileFragment();
-
             activeFragment = connectFragment;
-
             initializeFragments();
         }
     }
@@ -97,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         addFragmentToManager(profileFragment, "PROFILE", true);
         addFragmentToManager(statusFragment, "STATUS", true);
         addFragmentToManager(hotlineFragment, "HOTLINE", true);
-        addFragmentToManager(connectFragment, "CONNECT", false);
+        addFragmentToManager(connectFragment, "CONNECT", true);
     }
 
     private void addFragmentToManager(Fragment fragment, String tag) {
@@ -105,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addFragmentToManager(Fragment fragment, String tag, boolean hide) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction()
                 .add(R.id.frame_layout, fragment, tag);
 
@@ -117,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleNavigation(int itemId) {
-
         if (itemId == R.id.bottom_nav_connect) {
             switchFragment(connectFragment);
         } else if (itemId == R.id.bottom_nav_hotline) {
@@ -147,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void switchFragment(Fragment targetFragment) {
-        Toast.makeText(MainActivity.this, "Natawag3", Toast.LENGTH_SHORT).show();
         if (activeFragment != targetFragment) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.hide(activeFragment);

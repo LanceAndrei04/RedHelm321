@@ -79,6 +79,8 @@ public class Navigation extends AppCompatActivity {
         }
     }
 
+
+
     private void switchFragment(Fragment targetFragment) {
         if (activeFragment != targetFragment) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

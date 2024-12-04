@@ -1,9 +1,11 @@
 package com.example.redhelm321;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.ActionProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
+import android.window.SplashScreen;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,12 +30,12 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Calendar;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements ActionProvider.VisibilityListener {
     private TextView nameTextView, emailTextView, contactTextView;
     private ImageView iv_profileImageView;
     private FloatingActionButton fbtn_editImageButton;
     private TextInputEditText et_nameEditText, et_emailEditText, et_contactNumberEditText, et_birthdayEditText, et_bloodTypeEditText, et_addressEditText;
-    private Button saveButton;;
+    private Button saveButton, logoutButton;;
 
     FirebaseAuth mAuth;
     DatabaseManager dbManager;
@@ -44,17 +47,12 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         InitializeComponent(view);
+        loadProfileFromDatabase();
 
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadProfileFromDatabase();
-    }
-
-    private void loadProfileFromDatabase() {
+    public void loadProfileFromDatabase() {
         userProfilePath = dbManager.getUserProfilePath();
         dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
             @Override
@@ -64,7 +62,7 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Exception e) {
-
+                Log.d("DEBUG_UPDATE_PROFILE", "FAILED ANG UPDATE PROFILE" + e.getMessage());
             }
         });
     }
@@ -96,6 +94,7 @@ public class ProfileFragment extends Fragment {
 
         // Initialize Save Button
         saveButton = view.findViewById(R.id.saveButton);
+        logoutButton = view.findViewById(R.id.loginButton);
 
         // Birthday picker setup
         EditText birthdayEditText = view.findViewById(R.id.birthdayEditText);
@@ -103,6 +102,10 @@ public class ProfileFragment extends Fragment {
 
         // Save button click listener
         saveButton.setOnClickListener(v -> saveProfileToDatabase());
+        logoutButton.setOnClickListener(v -> {
+            mAuth.signOut();
+            getActivity().finish();
+        });
     }
 
     private void saveProfileToDatabase() {
@@ -159,40 +162,38 @@ public class ProfileFragment extends Fragment {
     }
 
     private void updateProfile(UserProfile userProfile) {
-        if(userProfile == null) {
-            Log.d("DEBUG_PROFILE", "UserProfile is null");
-            return;
+
+        try {
+            Log.d("DEBUG_UPDATE_PROFILE", "NATAWAG ANG UPDATE PROFILE");
+            if(userProfile == null) {
+                Log.d("DEBUG_UPDATE_PROFILE", "UserProfile is null");
+                return;
+            }
+
+            if(userProfile.getUserImgLink() != null && !userProfile.getUserImgLink().isEmpty()) {
+                Log.d("DEBUG_UPDATE_PROFILE", "UserProfile is null " + userProfile.getUserImgLink());
+                UserProfile.setImageToImageView(getContext(), iv_profileImageView, userProfile.getUserImgLink());
+            }
+
+            nameTextView.setText(userProfile.getName());
+            emailTextView.setText(userProfile.getEmail());
+            contactTextView.setText(userProfile.getPhoneNumber());
+
+            et_emailEditText.setText(userProfile.getEmail());
+            et_nameEditText.setText(userProfile.getName());
+            et_contactNumberEditText.setText(userProfile.getPhoneNumber());
+            et_bloodTypeEditText.setText(userProfile.getBloodType());
+            et_addressEditText.setText(userProfile.getAddress());
+            et_birthdayEditText.setText(userProfile.getBirthDate());
+        } catch (Exception e) {
+            Log.d("DEBUG_UPDATE_PROFILE", "FAILED ANG UPDATE PROFILE" + e.getMessage());
         }
 
-        String name = mAuth.getCurrentUser().getDisplayName();
-        String email = mAuth.getCurrentUser().getEmail();
-        String contact = userProfile.getPhoneNumber();
-
-        // Validate inputs
-        if (name.isEmpty() || email.isEmpty() || contact.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Update profile header section
-
-        UserProfile.setImageToImageView(getContext(), iv_profileImageView, String.valueOf(mAuth.getCurrentUser().getPhotoUrl()));
-
-        nameTextView.setText(name);
-        emailTextView.setText(email);
-        contactTextView.setText(contact);
-
-        et_nameEditText.setText(name);
-        et_emailEditText.setText(email);
-        et_contactNumberEditText.setText(contact);
-        et_bloodTypeEditText.setText(userProfile.getBloodType());
-        et_addressEditText.setText(userProfile.getAddress());
-        et_birthdayEditText.setText(userProfile.getBirthDate());
-
-
-//        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
     }
 
 
-
+    @Override
+    public void onActionProviderVisibilityChanged(boolean b) {
+        Toast.makeText(getContext(), "AYDIWOW", Toast.LENGTH_SHORT).show();
+    }
 }
