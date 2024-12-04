@@ -26,7 +26,8 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                HandleUserAuthentication();
+                openMainScreen();
+                finish();
             }
         }, SPLASH_DELAY);
 
@@ -38,7 +39,6 @@ public class SplashActivity extends AppCompatActivity {
             openLoginPage();
         }
         else {
-            Toast.makeText(this, "Welcome back! " + mAuth.getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
             openMainScreen();
         }
     }

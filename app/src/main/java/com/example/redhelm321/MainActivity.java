@@ -76,14 +76,31 @@ public class MainActivity extends AppCompatActivity {
         });
 
         InitializeAuth();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         HandleUserAuthentication();
     }
 
     private void HandleUserAuthentication() {
         if(mAuth.getCurrentUser() == null) {
-            Toast.makeText(this, "Please log in first.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please log in first.",
+                    Toast.LENGTH_SHORT).show();
             openLoginPage();
+        }   else {
+            Toast.makeText(this,
+                    "Welcome back! " + mAuth.getCurrentUser().getDisplayName(),
+                    Toast.LENGTH_SHORT).show();
+
         }
+    }
+    private void InitializeAuth() {
+        mAuth = FirebaseAuth.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        usersRef = firebaseDatabase.getReference("users");
+        FBDB_profilesRef = firebaseDatabase.getReference("profiles");
     }
 
     private void openLoginPage() {
@@ -92,12 +109,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void InitializeAuth() {
-        mAuth = FirebaseAuth.getInstance();
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        usersRef = firebaseDatabase.getReference("users");
-        FBDB_profilesRef = firebaseDatabase.getReference("profiles");
-    }
+
 
 
 }

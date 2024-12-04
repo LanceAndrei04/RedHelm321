@@ -53,13 +53,20 @@ public class LoginActivity extends AppCompatActivity {
 
         InitializeComponents();
         InitializeAuthentication();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         HandleUserAuthentication();
     }
 
     private void HandleUserAuthentication() {
+        if (mAuth.getCurrentUser() != null) {
+            Toast.makeText(this, "You are already logged in.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
-
-
     private void InitializeComponents() {
 
         et_email_input = findViewById(R.id.et_email_input);
@@ -80,54 +87,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void btn_google_signIn_button_OnClick(View view) {
-
-    }
-
-    private void btn_login_button_OnClick(View v) {
-        final String email = et_email_input.getText().toString().trim();
-        final  String password = et_password_input.getText().toString().trim();
-
-        FormValidation.FormValidationResult loginFormResult = FormValidation.isLoginFormValid(
-                email,
-                password
-        );
-
-        String message = "";
-
-        switch (loginFormResult) {
-            case INVALID_EMAIL:
-                message = FormValidation.WarningMessage.INVALID_EMAIL_WARNING.getMessage();
-                break;
-            case INVALID_PASSWORD:
-                message = FormValidation.WarningMessage.INVALID_PASSWORD_WARNING.getMessage();
-                break;
-            case INPUT_NULL:
-                message = FormValidation.WarningMessage.INPUT_NULL_WARNING.getMessage();
-                break;
-        }
-
-        if(!TextUtils.isEmpty(message)) {
-            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT)
-                    .show();
-        }
-
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            openMainScreen();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
     private void InitializeAuthentication() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -175,14 +134,11 @@ public class LoginActivity extends AppCompatActivity {
             GoogleSignInAccount account = task.getResult(Exception.class);
 
             if(account != null) {
-//                pb_login.setVisibility(View.INVISIBLE);
-//                resetFailedLoginCounter();
 
                 AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
 
                 HashMap<String, String> userData = new HashMap<>();
                 userData.put("username", account.getDisplayName());
-
 
                 mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -190,23 +146,6 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "Successfully signed in with Google!", Toast.LENGTH_SHORT).show();
                         FirebaseUser user = mAuth.getCurrentUser();
                         openMainScreen();
-                        if (user != null) {
-                            String userId = user.getUid();
-
-                            usersRef.child(userId).setValue(userData)
-                                    .addOnCompleteListener(detailsTask -> {
-                                        if (detailsTask.isSuccessful()) {
-                                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "User data saved", Toast.LENGTH_SHORT).show());
-//                                            Log.i(TAG, "User data saved for: " + user.getEmail());?
-                                        } else {
-//                                            Log.e(TAG, "Error saving user data: " + detailsTask.getException());
-                                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error saving user data", Toast.LENGTH_SHORT).show());
-                                        }
-                                    });
-                        } else {
-//                            Log.e(TAG, "FirebaseUser is null after successful registration");
-                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error: User data is missing", Toast.LENGTH_SHORT).show());
-                        }
                     }
                 });
             }
@@ -219,10 +158,57 @@ public class LoginActivity extends AppCompatActivity {
         }
 
     }
-
-
-
     private void openMainScreen() {
-        finish();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
+
+    private void btn_google_signIn_button_OnClick(View view) {
+        Intent openGoogleSignIn = googleSignInClient.getSignInIntent();
+        activityResultLauncher.launch(openGoogleSignIn);
+    }
+    private void btn_login_button_OnClick(View v) {
+        final String email = et_email_input.getText().toString().trim();
+        final  String password = et_password_input.getText().toString().trim();
+
+        FormValidation.FormValidationResult loginFormResult = FormValidation.isLoginFormValid(
+                email,
+                password
+        );
+
+        String message = "";
+
+        switch (loginFormResult) {
+            case INVALID_EMAIL:
+                message = FormValidation.WarningMessage.INVALID_EMAIL_WARNING.getMessage();
+                break;
+            case INVALID_PASSWORD:
+                message = FormValidation.WarningMessage.INVALID_PASSWORD_WARNING.getMessage();
+                break;
+            case INPUT_NULL:
+                message = FormValidation.WarningMessage.INPUT_NULL_WARNING.getMessage();
+                break;
+        }
+
+        if(!TextUtils.isEmpty(message)) {
+            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            openMainScreen();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+
 }
