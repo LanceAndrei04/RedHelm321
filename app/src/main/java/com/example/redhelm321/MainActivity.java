@@ -13,6 +13,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.redhelm321.authentication.LoginActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -39,11 +42,17 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     FirebaseDatabase firebaseDatabase;
-    GoogleSignInClient googleSignInClient ;
 
     private DatabaseReference usersRef;
     private DatabaseReference FBDB_profilesRef;
     private ActivityResultLauncher<Intent> activityResultLauncher;
+
+    private Fragment connectFragment = new ConnectFragment();
+    private Fragment hotlineFragment = new HotlineFragment();
+    private Fragment statusFragment = new StatusFragment();
+    private Fragment profileFragment = new ProfileFragment();
+
+    private Fragment activeFragment = connectFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,29 +62,54 @@ public class MainActivity extends AppCompatActivity {
         frameLayout = findViewById(R.id.frame_layout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, new ConnectFragment()).commit();
-        }
+        initializeFragments();
+        InitializeAuth();
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                int id = menuItem.getItemId();
-
-                if (id == R.id.bottom_nav_connect) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, new ConnectFragment()).commit();
-                } else if (id == R.id.bottom_nav_hotline) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, new HotlineFragment()).commit();
-                } else if (id == R.id.bottom_nav_status) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, new StatusFragment()).commit();
-                } else if (id == R.id.bottom_nav_profile) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, new ProfileFragment()).commit();
-                }
+                handleNavigation(menuItem.getItemId());
                 return true;
             }
         });
 
-        InitializeAuth();
+
+    }
+
+    private void initializeFragments() {
+        addFragmentToManager(profileFragment, "PROFILE");
+        addFragmentToManager(statusFragment, "STATUS");
+        addFragmentToManager(hotlineFragment, "HOTLINE");
+        addFragmentToManager(connectFragment, "CONNECT", false);
+    }
+
+    private void addFragmentToManager(Fragment fragment, String tag) {
+        addFragmentToManager(fragment, tag, true);
+    }
+
+    private void addFragmentToManager(Fragment fragment, String tag, boolean hide) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction()
+                .add(R.id.frame_layout, fragment, tag);
+
+        if (hide) {
+            transaction.hide(fragment);
+        }
+
+        transaction.commit();
+    }
+
+    private void handleNavigation(int itemId) {
+
+        if (itemId == R.id.bottom_nav_connect) {
+            switchFragment(connectFragment);
+        } else if (itemId == R.id.bottom_nav_hotline) {
+            switchFragment(hotlineFragment);
+        } else if (itemId == R.id.bottom_nav_status) {
+            switchFragment(statusFragment);
+        } else if (itemId == R.id.bottom_nav_profile) {
+            switchFragment(profileFragment);
+        }
     }
 
     @Override
@@ -96,6 +130,20 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+
+    private void switchFragment(Fragment targetFragment) {
+        Toast.makeText(MainActivity.this, "Natawag3", Toast.LENGTH_SHORT).show();
+        if (activeFragment != targetFragment) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.hide(activeFragment);
+            transaction.show(targetFragment);
+            transaction.commit();
+
+            activeFragment = targetFragment;
+        }
+    }
+
     private void InitializeAuth() {
         mAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();

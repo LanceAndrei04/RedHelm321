@@ -15,7 +15,7 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/red_500</item>
         <item name="colorSecondaryVariant">@color/red_700</item>
-        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/red_500</item>
         <!-- Text input style -->

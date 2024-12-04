@@ -28,7 +28,7 @@ public class Navigation extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigation);
+        setContentView(R.layout.activity_main);
 
         frameLayout = findViewById(R.id.frame_layout);
         bottomNavigationView = findViewById(R.id.bottomNavigation);
