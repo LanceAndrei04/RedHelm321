@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="red_200">#FFEF9A9A</color>
+    <color name="red_500">#FFE53935</color>
+    <color name="red_700">#FFB71C1C</color>
     <color name="red_primary">#FF0000</color>
     <color name="red_secondary">#C52D26</color>
-    <color name="gray">#F2F8FC</color>
-    <color name="dark_gray">#A8A8A8</color>
-    <color name="green">#05D71A</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray">#FFEEEEEE</color>
+    <color name="dark_gray">#AFABAB</color>
+    <color name="green">#07C107</color>
 </resources>
