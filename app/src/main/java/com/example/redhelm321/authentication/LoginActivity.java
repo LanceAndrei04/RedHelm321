@@ -159,8 +159,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
     private void openMainScreen() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     private void btn_google_signIn_button_OnClick(View view) {
