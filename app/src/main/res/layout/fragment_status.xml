@@ -1,19 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/green"
-    tools:context=".StatusFragment"
-    android:gravity="center">
+    android:background="@drawable/status_bg"
+    tools:context=".StatusFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <androidx.appcompat.widget.AppCompatTextView
+    <androidx.cardview.widget.CardView
+        android:id="@+id/headerCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="status"
-        android:textSize="26sp"
-        android:gravity="center" />
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/gray"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="8dp">
 
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:text="Status Overview"
+            android:textColor="@color/green"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:drawableStart="@drawable/ic_status"
+            android:drawableTint="@color/green"
+            android:drawablePadding="8dp" />
+
+    </androidx.cardview.widget.CardView>
+
+    <FrameLayout
+        android:id="@+id/profilesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_below="@id/headerCard"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="30dp"
+        android:layout_above="@+id/statusCard">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/default_profile"
+            android:scaleType="centerCrop"
+            android:padding="3dp"
+            android:background="@drawable/circle_border_green"
+            android:clipToOutline="true"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp" />
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/default_profile"
+            android:scaleType="centerCrop"
+            android:padding="3dp"
+            android:background="@drawable/circle_border_red"
+            android:clipToOutline="true"
+            android:layout_marginStart="150dp"
+            android:layout_marginTop="40dp" />
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:src="@drawable/default_profile"
+            android:scaleType="centerCrop"
+            android:padding="3dp"
+            android:background="@drawable/circle_border_green"
+            android:clipToOutline="true"
+            android:layout_marginStart="250dp"
+            android:layout_marginTop="15dp" />
+
+        <ImageView
+            android:id="@+id/contactImageView"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/default_profile"
+            android:scaleType="centerCrop"
+            android:padding="3dp"
+            android:background="@drawable/circle_border_red"
+            android:clipToOutline="true"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="100dp" />
+
+        <ImageView
+            android:layout_width="62dp"
+            android:layout_height="62dp"
+            android:layout_marginStart="200dp"
+            android:layout_marginTop="90dp"
+            android:background="@drawable/circle_border_green"
+            android:clipToOutline="true"
+            android:padding="3dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_profile" />
+    </FrameLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/statusCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center">
+
+            <FrameLayout
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:id="@+id/profileImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/default_profile"
+                    android:scaleType="centerCrop"
+                    android:padding="4dp"
+                    android:background="@drawable/circle_border_green"
+                    android:clipToOutline="true" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Are you safe?"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/markSafeButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Mark Safe"
+                    android:padding="12dp"
+                    android:backgroundTint="@color/green"
+                    app:cornerRadius="8dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/needHelpButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Need Help"
+                    android:padding="12dp"
+                    android:backgroundTint="@color/red_500"
+                    app:cornerRadius="8dp"/>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reportInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:boxStrokeColor="@color/red_500"
+                app:hintTextColor="@color/red_500"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reportEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter report details" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sendReportButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Send"
+                android:backgroundTint="@color/red_500"
+                android:layout_marginTop="8dp"
+                app:cornerRadius="8dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

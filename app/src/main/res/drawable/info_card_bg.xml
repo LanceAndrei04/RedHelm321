@@ -1,0 +1,6 @@
+<!-- res/drawable/toast_card_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/gray" /> <!-- White background for the card -->
+    <corners android:radius="8dp" /> <!-- Rounded corners -->
+    <elevation android:radius="4dp" /> <!-- Shadow for elevation -->
+</shape>
