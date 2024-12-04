@@ -1,0 +1,228 @@
+package com.example.redhelm321.authentication;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.redhelm321.MainActivity;
+import com.example.redhelm321.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+
+public class LoginActivity extends AppCompatActivity {
+
+    FirebaseAuth mAuth;
+    FirebaseDatabase firebaseDatabase;
+    GoogleSignInClient googleSignInClient ;
+
+    private DatabaseReference usersRef;
+    private DatabaseReference FBDB_profilesRef;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+
+    MaterialButton btn_loginButton, btn_google_signIn_button;
+    EditText et_email_input, et_password_input;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        InitializeComponents();
+        InitializeAuthentication();
+        HandleUserAuthentication();
+    }
+
+    private void HandleUserAuthentication() {
+    }
+
+
+    private void InitializeComponents() {
+
+        et_email_input = findViewById(R.id.et_email_input);
+        et_password_input = findViewById(R.id.et_password_input);
+        btn_google_signIn_button = findViewById(R.id.btn_google_signin_button);
+        btn_google_signIn_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btn_google_signIn_button_OnClick(view);
+            }
+        });
+
+        btn_loginButton = findViewById(R.id.btn_login_button);
+        btn_loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btn_login_button_OnClick(v);
+            }
+        });
+    }
+
+    private void btn_google_signIn_button_OnClick(View view) {
+
+    }
+
+    private void btn_login_button_OnClick(View v) {
+        final String email = et_email_input.getText().toString().trim();
+        final  String password = et_password_input.getText().toString().trim();
+
+        FormValidation.FormValidationResult loginFormResult = FormValidation.isLoginFormValid(
+                email,
+                password
+        );
+
+        String message = "";
+
+        switch (loginFormResult) {
+            case INVALID_EMAIL:
+                message = FormValidation.WarningMessage.INVALID_EMAIL_WARNING.getMessage();
+                break;
+            case INVALID_PASSWORD:
+                message = FormValidation.WarningMessage.INVALID_PASSWORD_WARNING.getMessage();
+                break;
+            case INPUT_NULL:
+                message = FormValidation.WarningMessage.INPUT_NULL_WARNING.getMessage();
+                break;
+        }
+
+        if(!TextUtils.isEmpty(message)) {
+            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            openMainScreen();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void InitializeAuthentication() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        mAuth = FirebaseAuth.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        usersRef = firebaseDatabase.getReference("users");
+        FBDB_profilesRef = firebaseDatabase.getReference("profiles");
+
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        int resultCode = result.getResultCode();
+                        Intent data = result.getData();
+
+
+                        if(resultCode == RESULT_OK) {
+                            handleSigningInWithGoogle(data);
+                        }
+                        else {
+                            Toast.makeText(
+                                    LoginActivity.this,
+                                    "Google Sign In Cancelled",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+//                            pb_login.setVisibility(View.INVISIBLE);
+                        }
+
+
+                    }
+                }
+        );
+    }
+
+    private void handleSigningInWithGoogle(Intent data) {
+        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+
+        try {
+            GoogleSignInAccount account = task.getResult(Exception.class);
+
+            if(account != null) {
+//                pb_login.setVisibility(View.INVISIBLE);
+//                resetFailedLoginCounter();
+
+                AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+
+                HashMap<String, String> userData = new HashMap<>();
+                userData.put("username", account.getDisplayName());
+
+
+                mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Toast.makeText(LoginActivity.this, "Successfully signed in with Google!", Toast.LENGTH_SHORT).show();
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        openMainScreen();
+                        if (user != null) {
+                            String userId = user.getUid();
+
+                            usersRef.child(userId).setValue(userData)
+                                    .addOnCompleteListener(detailsTask -> {
+                                        if (detailsTask.isSuccessful()) {
+                                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "User data saved", Toast.LENGTH_SHORT).show());
+//                                            Log.i(TAG, "User data saved for: " + user.getEmail());?
+                                        } else {
+//                                            Log.e(TAG, "Error saving user data: " + detailsTask.getException());
+                                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error saving user data", Toast.LENGTH_SHORT).show());
+                                        }
+                                    });
+                        } else {
+//                            Log.e(TAG, "FirebaseUser is null after successful registration");
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error: User data is missing", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                });
+            }
+
+        }
+
+        catch (Exception e) {
+//            Log.e(TAG, e.toString());
+            Toast.makeText(this, "An error happened while getting google account!", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
+
+    private void openMainScreen() {
+        finish();
+    }
+}
