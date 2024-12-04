@@ -36,4 +36,10 @@
         android:layout_height="wrap_content"
         android:text="db debug"/>
 
+    <Button
+        android:id="@+id/btn_db_read_debug"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="db read debug"/>
+
 </LinearLayout>
