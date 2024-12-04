@@ -57,7 +57,7 @@ public class ConnectFragment extends Fragment {
         btn_db_debug.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "DEBUG DEBUG pooosh", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "DEBUG DEBUG poooshh", Toast.LENGTH_SHORT).show();
                 btn_db_debug_OnClick();
             }
         });
