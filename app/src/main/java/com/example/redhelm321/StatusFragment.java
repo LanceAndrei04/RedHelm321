@@ -1,6 +1,8 @@
 package com.example.redhelm321;
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -21,6 +23,12 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class StatusFragment extends Fragment {
     private ImageView profileImageView, contactImageView;
@@ -29,9 +37,11 @@ public class StatusFragment extends Fragment {
     private TextInputEditText reportEditText;
 
     FirebaseAuth mAuth;
+    FirebaseDatabase firebaseDatabase;
     DatabaseManager dbManager;
     UserProfile currentUserProfile;
     private String userProfilePath;
+    ArrayList<String> friendProfileIds;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,8 +83,27 @@ public class StatusFragment extends Fragment {
 
     private void InitializeComponent(View view) {
         mAuth = FirebaseAuth.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        firebaseDatabase.getReference().child("profiles").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Toast.makeText(getContext(), "DATABASE CHANGED", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
         userProfilePath = dbManager.getUserProfilePath();
+
+        friendProfileIds = new ArrayList<>();
+        friendProfileIds.add("9wgMiJMBDJUhKIYExHdqLxsPbOO2");
+        friendProfileIds.add("VmHdqFzAbfY7GFT1r94bL1kjGfZ2");
+        friendProfileIds.add("ivmfZhoOnvhYYc8nQj6DtU0qLfm2");
+        friendProfileIds.add("eHr9sW6e6hOJo2ooJUoX5wIUYvR2");
+        friendProfileIds.add("y93MjFxb5ghxeJiPu1cL1t1uMk83");
 
         // Initialize views
         profileImageView = view.findViewById(R.id.profileImageView);
@@ -141,6 +170,8 @@ public class StatusFragment extends Fragment {
             }
         });
     }
+
+
 
     private void sendReportButton_OnClick(View v) {
         String report = reportEditText.getText().toString().trim();

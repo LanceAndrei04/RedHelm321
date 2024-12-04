@@ -34,6 +34,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LoginActivity extends AppCompatActivity {
@@ -45,7 +46,6 @@ public class LoginActivity extends AppCompatActivity {
     private DatabaseReference usersRef;
     private DatabaseReference FBDB_profilesRef;
     private ActivityResultLauncher<Intent> activityResultLauncher;
-
     DatabaseManager dbManager;
 
     MaterialButton btn_loginButton, btn_google_signIn_button;

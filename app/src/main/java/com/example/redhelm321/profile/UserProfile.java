@@ -17,14 +17,23 @@ public class UserProfile {
     private String bloodType;
     private String email;
     private String status;
+    private String report;
     private String latestTimeStatusUpdate;
+
 
     // Default no-argument constructor required by Firebase
     public UserProfile() {
     }
 
     // Constructor for manual instantiation
-    public UserProfile(String userImgLink, String name, int age, String birthDate, String address, String phoneNumber, String bloodType, String email, String status, String latestTimeStatusUpdate) {
+    public UserProfile(
+            String userImgLink, String name,
+            int age, String birthDate,
+            String address, String phoneNumber,
+            String bloodType, String email,
+            String status, String latestTimeStatusUpdate,
+            String report) {
+
         this.userImgLink = userImgLink;
         this.name = name;
         this.age = age;
@@ -35,6 +44,7 @@ public class UserProfile {
         this.email = email;
         this.status = status;
         this.latestTimeStatusUpdate = latestTimeStatusUpdate;
+        this.report = report;
 
     }
 
@@ -43,6 +53,14 @@ public class UserProfile {
         Glide.with(context)
                 .load(userImgLink)
                 .into(imageView); // Target ImageView
+    }
+
+    public String getReport() {
+        return report;
+    }
+
+    public void setReport(String report) {
+        this.report = report;
     }
 
     public String getStatus() {
@@ -138,6 +156,7 @@ public class UserProfile {
         private String bloodType;
         private String email;
         private String status;
+        private String report;
         private String latestTimeStatusUpdate;
 
         public Builder setLatestTimeStatusUpdate(String latestTimeStatusUpdate) {
@@ -147,6 +166,11 @@ public class UserProfile {
 
         public Builder setStatus(String status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder setReport(String report) {
+            this.report = report;
             return this;
         }
 
@@ -191,7 +215,10 @@ public class UserProfile {
         }
 
         public UserProfile build() {
-            return new UserProfile(userImgLink, name, age, birthDate, address, phoneNumber, bloodType, email, status, latestTimeStatusUpdate);
+            return new UserProfile(
+                    userImgLink, name, age, birthDate,
+                    address, phoneNumber, bloodType, email,
+                    status, latestTimeStatusUpdate, report);
         }
     }
 }
