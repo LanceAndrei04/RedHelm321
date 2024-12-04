@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,9 +30,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class StatusFragment extends Fragment {
-    private ImageView profileImageView, contactImageView;
+    private static final int MAX_DISPLAY_FRIEND = 5;
+    private ImageView profileImageView, iv_friendImageView1, iv_friendImageView2, iv_friendImageView3, iv_friendImageView4, iv_friendImageView5;
     private MaterialButton markSafeButton, needHelpButton, sendReportButton;
     private TextInputLayout reportInputLayout;
     private TextInputEditText reportEditText;
@@ -40,17 +44,74 @@ public class StatusFragment extends Fragment {
     FirebaseDatabase firebaseDatabase;
     DatabaseManager dbManager;
     UserProfile currentUserProfile;
-    private String userProfilePath;
-    ArrayList<String> friendProfileIds;
+    String userProfilePath;
+    View rootView;
+
+    HashMap<String, ImageView> friendProfileIds;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_status, container, false);
+        rootView = inflater.inflate(R.layout.fragment_status, container, false);
 
-        InitializeComponent(view);
+        InitializeComponent(rootView);
         loadProfileFromDatabase();
 
-        return view;
+        return rootView;
+    }
+
+    private void InitializeComponent(View view) {
+        mAuth = FirebaseAuth.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        firebaseDatabase.getReference().child("profiles").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Toast.makeText(getContext(), "DATABASE CHANGED", Toast.LENGTH_SHORT).show();
+                    database_onDataChange(snapshot);
+                }
+                else {
+                    Log.d("DATABASE_CHANGE", "No snapshot available");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
+        userProfilePath = dbManager.getUserProfilePath();
+
+        
+
+        friendProfileIds = new HashMap<>();
+        friendProfileIds.put("9wgMiJMBDJUhKIYExHdqLxsPbOO2", view.findViewById(R.id.friendImageView1));
+        friendProfileIds.put("VmHdqFzAbfY7GFT1r94bL1kjGfZ2", view.findViewById(R.id.friendImageView2));
+        friendProfileIds.put("ivmfZhoOnvhYYc8nQj6DtU0qLfm2", view.findViewById(R.id.friendImageView3));
+        friendProfileIds.put("eHr9sW6e6hOJo2ooJUoX5wIUYvR2", view.findViewById(R.id.friendImageView4));
+        friendProfileIds.put("y93MjFxb5ghxeJiPu1cL1t1uMk83", view.findViewById(R.id.friendImageView5));
+
+        // Initialize views
+        profileImageView = view.findViewById(R.id.profileImageView);
+        markSafeButton = view.findViewById(R.id.markSafeButton);
+        needHelpButton = view.findViewById(R.id.needHelpButton);
+        reportInputLayout = view.findViewById(R.id.reportInputLayout);
+        reportEditText = view.findViewById(R.id.reportEditText);
+        sendReportButton = view.findViewById(R.id.sendReportButton);
+
+        // Set click listeners for status buttons
+        markSafeButton.setOnClickListener(v -> {
+            markSafeButton_OnClick(v);
+        });
+
+        needHelpButton.setOnClickListener(v -> {
+            needHelpButton_OnClick(v);
+        });
+        
+        // Set click listener for send button
+        sendReportButton.setOnClickListener(v -> {
+            sendReportButton_OnClick(v);
+        });
     }
 
     private void loadProfileFromDatabase() {
@@ -81,65 +142,39 @@ public class StatusFragment extends Fragment {
         UserProfile.setImageToImageView(getContext(), profileImageView, profileImgUrl);
     }
 
-    private void InitializeComponent(View view) {
-        mAuth = FirebaseAuth.getInstance();
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        firebaseDatabase.getReference().child("profiles").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Toast.makeText(getContext(), "DATABASE CHANGED", Toast.LENGTH_SHORT).show();
-            }
+    private void database_onDataChange(DataSnapshot snapshot) {
+        for(String profileId : friendProfileIds.keySet()) {
+            UserProfile friendProfile = snapshot.child(profileId).getValue(UserProfile.class);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
-        dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
-        userProfilePath = dbManager.getUserProfilePath();
+            String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
 
-        friendProfileIds = new ArrayList<>();
-        friendProfileIds.add("9wgMiJMBDJUhKIYExHdqLxsPbOO2");
-        friendProfileIds.add("VmHdqFzAbfY7GFT1r94bL1kjGfZ2");
-        friendProfileIds.add("ivmfZhoOnvhYYc8nQj6DtU0qLfm2");
-        friendProfileIds.add("eHr9sW6e6hOJo2ooJUoX5wIUYvR2");
-        friendProfileIds.add("y93MjFxb5ghxeJiPu1cL1t1uMk83");
+            changeStatusBorder(
+                    Objects.requireNonNull(friendProfileIds.get(profileId)),
+                    friendCurrentStatus
+            );
 
-        // Initialize views
-        profileImageView = view.findViewById(R.id.profileImageView);
-        contactImageView = view.findViewById(R.id.contactImageView);
-        markSafeButton = view.findViewById(R.id.markSafeButton);
-        needHelpButton = view.findViewById(R.id.needHelpButton);
-        reportInputLayout = view.findViewById(R.id.reportInputLayout);
-        reportEditText = view.findViewById(R.id.reportEditText);
-        sendReportButton = view.findViewById(R.id.sendReportButton);
-
-        // Set click listeners for status buttons
-        markSafeButton.setOnClickListener(v -> {
-            markSafeButton_OnClick(v);
-        });
-
-        needHelpButton.setOnClickListener(v -> {
-            needHelpButton_OnClick(v);
-        });
-
-        // Set click listeners for profile images
-        setImageClickListener(contactImageView, "BSU ALANGILAN", "Need Help", "Today", "Report detail", "Location detail");
-
-        // Set click listener for send button
-        sendReportButton.setOnClickListener(v -> {
-            sendReportButton_OnClick(v);
-        });
+            Log.d("DEBUG_BORDERCHANGE", friendProfile.getStatus() + "");
+        }
     }
 
     private void needHelpButton_OnClick(View v) {
-        profileImageView.setBackground(getResources().getDrawable(R.drawable.circle_border_red, requireContext().getTheme()));
+        changeStatusBorder(profileImageView, "Need Help");
         reportInputLayout.setVisibility(View.VISIBLE);
         sendReportButton.setVisibility(View.VISIBLE);
     }
 
+    private void changeStatusBorder(ImageView imgView, String status) {
+        int statusBorder = status.contains("Safe") ? R.drawable.circle_border_green : R.drawable.circle_border_red;
+
+        imgView.setBackground(
+                getResources().getDrawable(
+                        statusBorder,
+                        requireContext().getTheme()));
+    }
+
     private void markSafeButton_OnClick(View v) {
-        profileImageView.setBackground(getResources().getDrawable(R.drawable.circle_border_green, requireContext().getTheme()));
+        changeStatusBorder(profileImageView, "Safe");
         reportInputLayout.setVisibility(View.GONE);
         sendReportButton.setVisibility(View.GONE);
 
@@ -170,8 +205,6 @@ public class StatusFragment extends Fragment {
             }
         });
     }
-
-
 
     private void sendReportButton_OnClick(View v) {
         String report = reportEditText.getText().toString().trim();
