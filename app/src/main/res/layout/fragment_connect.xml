@@ -30,4 +30,10 @@
         android:textSize="15sp"
         android:textStyle="bold"/>
 
+    <Button
+        android:id="@+id/btn_db_debug"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="db debug"/>
+
 </LinearLayout>

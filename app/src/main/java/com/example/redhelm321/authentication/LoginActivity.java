@@ -67,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
     }
+
     private void InitializeComponents() {
 
         et_email_input = findViewById(R.id.et_email_input);
@@ -136,10 +137,6 @@ public class LoginActivity extends AppCompatActivity {
             if(account != null) {
 
                 AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-
-                HashMap<String, String> userData = new HashMap<>();
-                userData.put("username", account.getDisplayName());
-
                 mAuth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
