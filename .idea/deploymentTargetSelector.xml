@@ -7,7 +7,7 @@
         <DropdownSelection timestamp="2024-12-04T19:32:38.630153400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=SDEDU19A10005474" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=9TV475Z5S4SSWSWS" />
             </handle>
           </Target>
         </DropdownSelection>
