@@ -22,6 +22,7 @@ import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.database.ReadCallback;
 import com.example.redhelm321.profile.UserProfile;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,7 +39,7 @@ import java.util.Objects;
 
 public class StatusFragment extends Fragment {
     private static final int MAX_DISPLAY_FRIEND = 5;
-    private ImageView profileImageView,
+    private ShapeableImageView profileImageView,
             iv_friendImageView1, iv_friendImageView2, iv_friendImageView3, iv_friendImageView4, iv_friendImageView5;
     private MaterialButton markSafeButton, needHelpButton, sendReportButton;
     private TextInputLayout reportInputLayout;
@@ -51,7 +52,7 @@ public class StatusFragment extends Fragment {
     String userProfilePath;
     View rootView;
 
-    HashMap<String, ImageView> friendProfileIds;
+    HashMap<String, ShapeableImageView> friendProfileIds;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -126,7 +127,7 @@ public class StatusFragment extends Fragment {
             UserProfile friendProfile = snapshot.child(profileId).getValue(UserProfile.class);
 
             String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
-            ImageView iv_friendImageView = Objects.requireNonNull(friendProfileIds.get(profileId));
+            ShapeableImageView iv_friendImageView = Objects.requireNonNull(friendProfileIds.get(profileId));
 
             setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate());
 
@@ -214,14 +215,17 @@ public class StatusFragment extends Fragment {
         }
     }
 
-    private void changeStatusBorder(ImageView imgView, String status) {
-        int statusBorder = status.equals("Safe") ? R.drawable.circle_border_green : R.drawable.circle_border_red;
+    private void changeStatusBorder(ShapeableImageView imgView, String status) {
+        int colorResId = status.equals("Safe") ? R.color.green : R.color.red_primary;
 
-        imgView.setBackground(
-                getResources().getDrawable(
-                        statusBorder,
-                        requireContext().getTheme()));
+        imgView.setStrokeColor(
+                getResources().getColorStateList(
+                        colorResId,
+                        requireContext().getTheme()
+                )
+        );
     }
+
 
     private void updateUserStatusDB(String status) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
