@@ -17,16 +17,22 @@ import java.util.Locale;
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_SENT = 1;
     private static final int VIEW_TYPE_RECEIVED = 2;
+    private static final int VIEW_TYPE_NOTIFICATION = 3;
     private List<Message> messages = new ArrayList<>();
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     @NonNull
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_SENT) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_message_sent, parent, false);
             return new SentMessageHolder(view);
+        } else if (viewType == VIEW_TYPE_NOTIFICATION) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_message_notification, parent, false);
+            return new NotificationMessageHolder(view);
         } else {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_message_received, parent, false);
@@ -39,6 +45,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         Message message = messages.get(position);
         if (holder.getItemViewType() == VIEW_TYPE_SENT) {
             ((SentMessageHolder) holder).bind(message);
+        } else if (holder.getItemViewType() == VIEW_TYPE_NOTIFICATION) {
+            ((NotificationMessageHolder) holder).bind(message);
         } else {
             ((ReceivedMessageHolder) holder).bind(message);
         }
@@ -52,6 +60,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public int getItemViewType(int position) {
         Message message = messages.get(position);
+        if (message.isNotification()) {
+            return VIEW_TYPE_NOTIFICATION;
+        }
         return message.isSent() ? VIEW_TYPE_SENT : VIEW_TYPE_RECEIVED;
     }
 
@@ -87,6 +98,19 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void bind(Message message) {
             messageText.setText(message.getText());
             timeText.setText(timeFormat.format(new Date(message.getTimestamp())));
+        }
+    }
+
+    class NotificationMessageHolder extends RecyclerView.ViewHolder {
+        TextView notificationText;
+
+        NotificationMessageHolder(View itemView) {
+            super(itemView);
+            notificationText = itemView.findViewById(R.id.notificationText);
+        }
+
+        void bind(Message message) {
+            notificationText.setText("---------------------  " + message.getText() + "  ------------------------");
         }
     }
 }

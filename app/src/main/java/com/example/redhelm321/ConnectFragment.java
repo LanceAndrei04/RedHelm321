@@ -38,11 +38,9 @@ public class ConnectFragment extends Fragment {
 
     private RecyclerView chatRecyclerView;
     private EditText messageInput;
-    private ImageButton btnSend;
+    private ImageButton btnSend, btnScan;
     private MessageAdapter messageAdapter;
     private boolean isDetecting = false;
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,6 +70,7 @@ public class ConnectFragment extends Fragment {
         chatRecyclerView = rootView.findViewById(R.id.chatRecyclerView);
         messageInput = rootView.findViewById(R.id.messageInput);
         btnSend = rootView.findViewById(R.id.btnSend);
+        btnScan = rootView.findViewById(R.id.btnScan);
 
         // Setup RecyclerView
         messageAdapter = new MessageAdapter();
@@ -98,8 +97,23 @@ public class ConnectFragment extends Fragment {
         listViewDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String deviceName = adapterView.getItemAtPosition(i).toString();
                 cardViewAvailableDevices.setVisibility(View.GONE);
                 chatConstraintLayout.setVisibility(View.VISIBLE);
+
+                // Add connection notification
+                Message notification = new Message("Connected to " + deviceName, false);
+                notification.setNotification(true);
+                messageAdapter.addMessage(notification);
+            }
+        });
+
+        btnScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Message notification = new Message("Scanning Nearby Devices", false);
+                notification.setNotification(true);
+                messageAdapter.addMessage(notification);
             }
         });
     }
@@ -128,12 +142,9 @@ public class ConnectFragment extends Fragment {
             textViewDescription.setVisibility(View.GONE);
             constraintLayoutTitle.setVisibility(View.GONE);
             cardViewAvailableDevices.setVisibility(View.VISIBLE);
-
         } else {
             rippleView.startRippleEffect(scan_nearby_people.getWidth());
         }
         isDetecting = !isDetecting;
     }
-
-
 }
