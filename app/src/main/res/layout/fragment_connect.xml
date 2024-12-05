@@ -183,8 +183,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Scan QR Code"
                 android:src="@drawable/ic_scan_nearby"
-                app:tint="@color/dark_gray"
-                android:focusableInTouchMode="true"/>
+                app:tint="@color/dark_gray" />
 
             <EditText
                 android:id="@+id/messageInput"
