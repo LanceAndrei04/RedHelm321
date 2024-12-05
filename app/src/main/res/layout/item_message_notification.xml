@@ -5,6 +5,12 @@
     android:orientation="vertical"
     android:padding="8dp">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#CCCCCC"
+        android:layout_marginBottom="8dp"/>
+
     <TextView
         android:id="@+id/notificationText"
         android:layout_width="match_parent"
@@ -12,5 +18,11 @@
         android:gravity="center"
         android:textColor="#757575"
         android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#CCCCCC"
+        android:layout_marginTop="8dp"/>
 
 </LinearLayout>

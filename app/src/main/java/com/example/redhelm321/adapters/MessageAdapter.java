@@ -110,7 +110,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         void bind(Message message) {
-            notificationText.setText("---------------------  " + message.getText() + "  ------------------------");
+            notificationText.setText(message.getText());
         }
     }
 }
