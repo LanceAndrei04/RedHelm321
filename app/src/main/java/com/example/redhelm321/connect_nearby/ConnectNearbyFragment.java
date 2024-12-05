@@ -32,9 +32,12 @@ import android.widget.Toast;
 
 import com.example.redhelm321.R;
 import com.example.redhelm321.adapters.MessageAdapter;
+import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.models.Message;
 import com.example.redhelm321.models.RippleView;
 import com.example.redhelm321.utils.PermissionManager;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -45,6 +48,10 @@ import java.util.concurrent.Executors;
 public class ConnectNearbyFragment extends Fragment {
 
     private static final String TAG = "ConnectFragment";
+
+    FirebaseAuth mAuth;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseManager dbManager;
 
     Button scan_nearby_people, scanButton;
     CardView cardViewAvailableDevices;
@@ -127,6 +134,9 @@ public class ConnectNearbyFragment extends Fragment {
 
     private void InitializeConnectNearbyComponents() {
         permissionManager = new PermissionManager(getActivity());
+        mAuth = FirebaseAuth.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
 
         peerListListener = new WifiP2pManager.PeerListListener() {
             @Override
@@ -143,8 +153,8 @@ public class ConnectNearbyFragment extends Fragment {
                 final InetAddress groupOwnerAddress = wifiP2pInfo.groupOwnerAddress;
                 ReceiveMessageCallback receiveMessageCallback = new ReceiveMessageCallback() {
                     @Override
-                    public void updateMessageUI(String receivedMessage) {
-                        updateUI_OnMessage(receivedMessage);
+                    public void updateMessageUI(ChatMessage receivedMessage) {
+                        updateUI_OnMessageReceive(receivedMessage);
                     }
                 };
 
@@ -192,10 +202,19 @@ public class ConnectNearbyFragment extends Fragment {
         });
     }
 
-    private void updateUI_OnMessage(String receivedMessage) {
-        if (!receivedMessage.isEmpty()) {
+    private void updateUI_OnMessageReceive(ChatMessage receivedMessage) {
+        if (receivedMessage != null) {
             // Create and add the message
-            Message message = new Message(receivedMessage, false);
+            Message message = new Message(receivedMessage.getMessage(), false);
+            messageAdapter.addMessage(message);
+            chatRecyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+        }
+    }
+
+    private void updateUI_OnMessageSend(ChatMessage sentMessage) {
+        if (sentMessage != null) {
+            // Create and add the message
+            Message message = new Message(sentMessage.getMessage(), true);
             messageAdapter.addMessage(message);
 
             // Clear input and scroll to bottom
@@ -343,17 +362,18 @@ public class ConnectNearbyFragment extends Fragment {
 
     private void sendMessage() {
         String message = messageInput.getText().toString();
-
+        ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), message).build();
+        updateUI_OnMessageSend(chatMessage);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         executorService.execute(new Runnable() {
             @Override
             public void run() {
                 if(isHost) {
-                    serverClass.broadcastMessage(message);
+                    serverClass.broadcastMessage(chatMessage);
                 }
                 else {
-                    clientClass.sendMessage(message);
+                    clientClass.sendMessage(chatMessage);
                 }
             }
         });

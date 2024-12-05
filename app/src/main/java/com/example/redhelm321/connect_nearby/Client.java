@@ -1,86 +1,64 @@
 package com.example.redhelm321.connect_nearby;
 
-
 import android.os.Handler;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
-
 import com.example.redhelm321.MainActivity;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class Client extends Thread {
 
-    String serverIP;
-    Socket clientSocket;
+    private final String serverIP;
+    private Socket clientSocket;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
+    private final Handler handler;
+    private final FragmentActivity sourceActivity;
+    private final ReceiveMessageCallback receiveMessageCallback;
 
-    DataOutputStream dos;
-    DataInputStream dis;
-
-    Handler handler;
-    FragmentActivity sourceActivity;
-
-    private final ReceiveMessageCallback receiveMessagecallback;
-
-    public Client(FragmentActivity sourceActivity, String serverIP, ReceiveMessageCallback receiveMessagecallback) {
-        this.receiveMessagecallback = receiveMessagecallback;
+    public Client(FragmentActivity sourceActivity, String serverIP, ReceiveMessageCallback receiveMessageCallback) {
         this.serverIP = serverIP;
-        this.handler = new Handler();
         this.sourceActivity = sourceActivity;
+        this.receiveMessageCallback = receiveMessageCallback;
+        this.handler = new Handler();
     }
-
-    private void receiveMessage(String message) {
-        receiveMessagecallback.updateMessageUI(message);
-        updateMessageUI(message);
-    }
-
-    private void updateMessageUI(String message) {
-//        messages.add(message);
-//        lvMessageList.setAdapter(new ArrayAdapter<String>(
-//                sourceActivity,
-//                android.R.layout.simple_list_item_1,
-//                messages));
-    }
-
 
     @Override
     public void run() {
         try {
             clientSocket = new Socket(serverIP, MainActivity.IP_PORT);
-            dos = new DataOutputStream(clientSocket.getOutputStream());
-            dis = new DataInputStream(clientSocket.getInputStream());
+            inputStream = new DataInputStream(clientSocket.getInputStream());
+            outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-            String msg;
-            while ((msg = dis.readUTF()) != null) {
-                String finalMsg = msg;
-                handler.post(() -> receiveMessage(finalMsg));
+            while (true) {
+                String sender = inputStream.readUTF();
+                String message = inputStream.readUTF();
+
+                ChatMessage chatMessage = new ChatMessage.Builder(sender, message)
+                        .build();
+
+                handler.post(() -> {
+                    receiveMessageCallback.updateMessageUI(chatMessage);
+                });
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(ChatMessage message) {
         new Thread(() -> {
             try {
-                if (dos != null) {
-                    dos.writeUTF(message);
-                    dos.flush();
-                }
+                outputStream.writeUTF(message.getSender());
+                outputStream.writeUTF(message.getMessage());
+                outputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
                 handler.post(() -> Toast.makeText(sourceActivity, "Error sending message", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
-
-
 }
