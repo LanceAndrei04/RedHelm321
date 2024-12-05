@@ -29,8 +29,8 @@ public class DatabaseManager {
         return instance;
     }
 
-    public String getUserProfilePath() {
-        return PROFILE_PATH + "/" + userId;
+    public String getUserProfilePath(String userID) {
+        return PROFILE_PATH + "/" + userID;
     }
 
     // Save data to a specific path

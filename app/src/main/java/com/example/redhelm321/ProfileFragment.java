@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
     }
 
     public void loadProfileFromDatabase() {
-        userProfilePath = dbManager.getUserProfilePath();
+        userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
         dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
             @Override
             public void onSuccess(UserProfile data) {

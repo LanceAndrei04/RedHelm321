@@ -18,6 +18,7 @@ import com.example.redhelm321.MainActivity;
 import com.example.redhelm321.R;
 import com.example.redhelm321.database.DatabaseCallback;
 import com.example.redhelm321.database.DatabaseManager;
+import com.example.redhelm321.database.ReadCallback;
 import com.example.redhelm321.profile.UserProfile;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -94,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient.signOut();
 
         mAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
@@ -142,26 +144,41 @@ public class LoginActivity extends AppCompatActivity {
 
                         Toast.makeText(LoginActivity.this, "Successfully signed in with Google!", Toast.LENGTH_SHORT).show();
                         FirebaseUser user = mAuth.getCurrentUser();
-                        UserProfile newUserProfile = new UserProfile.Builder()
-                                .setName(user.getDisplayName())
-                                .setPhoneNumber(user.getPhoneNumber())
-                                .setEmail(user.getEmail())
-                                .setUserImgLink(String.valueOf(user.getPhotoUrl()))
-                                .build();
 
                         dbManager = DatabaseManager.getInstance(user.getUid());
-                        userProfilePath = dbManager.getUserProfilePath();
-                        dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
+                        userProfilePath = dbManager.getUserProfilePath(user.getUid());
+
+                        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
                             @Override
-                            public void onSuccess() {
+                            public void onSuccess(UserProfile data) {
                                 openMainScreen();
                             }
 
                             @Override
                             public void onFailure(Exception e) {
+                                UserProfile newUserProfile = new UserProfile.Builder()
+                                        .setName(user.getDisplayName())
+                                        .setPhoneNumber(user.getPhoneNumber())
+                                        .setEmail(user.getEmail())
+                                        .setStatus("Safe")
+                                        .setUserImgLink(String.valueOf(user.getPhotoUrl()))
+                                        .build();
 
+                                dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        openMainScreen();
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+
+                                    }
+                                });
                             }
                         });
+
+
                     }
                 });
             }
@@ -221,11 +238,12 @@ public class LoginActivity extends AppCompatActivity {
                                     .setName(user.getDisplayName())
                                     .setPhoneNumber(user.getPhoneNumber())
                                     .setEmail(user.getEmail())
+                                    .setStatus("Safe")
                                     .setUserImgLink(user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : UserProfile.DEFAULT_PROFILE_PIC)
                                     .build();
 
                             dbManager = DatabaseManager.getInstance(user.getUid());
-                            userProfilePath = dbManager.getUserProfilePath();
+                            userProfilePath = dbManager.getUserProfilePath(user.getUid());
                             dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
                                 @Override
                                 public void onSuccess() {

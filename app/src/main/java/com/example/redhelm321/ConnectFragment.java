@@ -42,7 +42,7 @@ public class ConnectFragment extends Fragment {
     private void InitializeComponents(View rootView) {
         mAuth = FirebaseAuth.getInstance();
         dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
-        userProfilePath = dbManager.getUserProfilePath();
+        userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
 
         btn_db_read_debug = rootView.findViewById(R.id.btn_db_read_debug);
         btn_db_read_debug.setOnClickListener(new View.OnClickListener() {

@@ -1,5 +1,6 @@
 package com.example.redhelm321;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,18 +25,21 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Objects;
 
 public class StatusFragment extends Fragment {
     private static final int MAX_DISPLAY_FRIEND = 5;
-    private ImageView profileImageView, iv_friendImageView1, iv_friendImageView2, iv_friendImageView3, iv_friendImageView4, iv_friendImageView5;
+    private ImageView profileImageView,
+            iv_friendImageView1, iv_friendImageView2, iv_friendImageView3, iv_friendImageView4, iv_friendImageView5;
     private MaterialButton markSafeButton, needHelpButton, sendReportButton;
     private TextInputLayout reportInputLayout;
     private TextInputEditText reportEditText;
@@ -66,7 +70,6 @@ public class StatusFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    Toast.makeText(getContext(), "DATABASE CHANGED", Toast.LENGTH_SHORT).show();
                     database_onDataChange(snapshot);
                 }
                 else {
@@ -80,16 +83,13 @@ public class StatusFragment extends Fragment {
             }
         });
         dbManager = DatabaseManager.getInstance(mAuth.getCurrentUser().getUid());
-        userProfilePath = dbManager.getUserProfilePath();
-
-        
+        userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
 
         friendProfileIds = new HashMap<>();
-        friendProfileIds.put("9wgMiJMBDJUhKIYExHdqLxsPbOO2", view.findViewById(R.id.friendImageView1));
-        friendProfileIds.put("VmHdqFzAbfY7GFT1r94bL1kjGfZ2", view.findViewById(R.id.friendImageView2));
-        friendProfileIds.put("ivmfZhoOnvhYYc8nQj6DtU0qLfm2", view.findViewById(R.id.friendImageView3));
-        friendProfileIds.put("eHr9sW6e6hOJo2ooJUoX5wIUYvR2", view.findViewById(R.id.friendImageView4));
-        friendProfileIds.put("y93MjFxb5ghxeJiPu1cL1t1uMk83", view.findViewById(R.id.friendImageView5));
+        InitializeFriendList(view);
+
+//        friendProfileIds.put("eHr9sW6e6hOJo2ooJUoX5wIUYvR2", view.findViewById(R.id.friendImageView4));
+//        friendProfileIds.put("y93MjFxb5ghxeJiPu1cL1t1uMk83", view.findViewById(R.id.friendImageView5));
 
         // Initialize views
         profileImageView = view.findViewById(R.id.profileImageView);
@@ -114,6 +114,32 @@ public class StatusFragment extends Fragment {
         });
     }
 
+    private void InitializeFriendList(View view) {
+        friendProfileIds.put("SXi005pZ8vZZILr0wHKRZ14DZ5D2", view.findViewById(R.id.friendImageView1));
+        friendProfileIds.put("XPIPPiuONcafZdZoBNuKSunJ8J73", view.findViewById(R.id.friendImageView2));
+        friendProfileIds.put("y93MjFxb5ghxeJiPu1cL1t1uMk83", view.findViewById(R.id.friendImageView3));
+
+    }
+
+    private void database_onDataChange(DataSnapshot snapshot) {
+        for(String profileId : friendProfileIds.keySet()) {
+            UserProfile friendProfile = snapshot.child(profileId).getValue(UserProfile.class);
+
+            String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
+            ImageView iv_friendImageView = Objects.requireNonNull(friendProfileIds.get(profileId));
+
+            setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate());
+
+            changeStatusBorder(
+                    iv_friendImageView,
+                    friendCurrentStatus
+            );
+
+            Log.d("DEBUG_BORDERCHANGE", friendProfile.getName() + ": " + friendProfile.getStatus() + "||" + friendCurrentStatus );
+        }
+    }
+
+
     private void loadProfileFromDatabase() {
         dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
             @Override
@@ -121,6 +147,7 @@ public class StatusFragment extends Fragment {
                 currentUserProfile = data;
 
                 String currentStatus = currentUserProfile.getStatus() != null ? currentUserProfile.getStatus() : "Safe";
+                changeStatusBorder(profileImageView, currentStatus);
                 String latestTimeStatusUpdate = currentUserProfile.getLatestTimeStatusUpdate() != null ? currentUserProfile.getLatestTimeStatusUpdate() : "N/A";
                 setImageClickListener(profileImageView, currentUserProfile.getName(), currentStatus, latestTimeStatusUpdate);
 
@@ -142,30 +169,53 @@ public class StatusFragment extends Fragment {
         UserProfile.setImageToImageView(getContext(), profileImageView, profileImgUrl);
     }
 
-    private void database_onDataChange(DataSnapshot snapshot) {
-        for(String profileId : friendProfileIds.keySet()) {
-            UserProfile friendProfile = snapshot.child(profileId).getValue(UserProfile.class);
+    private void markSafeButton_OnClick(View v) {
+        reportInputLayout.setVisibility(View.GONE);
+        sendReportButton.setVisibility(View.GONE);
 
-
-            String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
-
-            changeStatusBorder(
-                    Objects.requireNonNull(friendProfileIds.get(profileId)),
-                    friendCurrentStatus
-            );
-
-            Log.d("DEBUG_BORDERCHANGE", friendProfile.getStatus() + "");
-        }
+        String status = "Safe";
+        updateUserStatusUpdtateTimeDB();
+        updateUserStatusDB(status);
+        updateUserReportDB("");
+        changeStatusBorder(profileImageView, status);
     }
 
     private void needHelpButton_OnClick(View v) {
         changeStatusBorder(profileImageView, "Need Help");
+        updateUserStatusDB("Not Safe");
+        updateUserStatusUpdtateTimeDB();
         reportInputLayout.setVisibility(View.VISIBLE);
         sendReportButton.setVisibility(View.VISIBLE);
+
+        dbManager.readData(dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()), UserProfile.class, new ReadCallback<UserProfile>() {
+            @Override
+            public void onSuccess(UserProfile data) {
+                reportEditText.setText(data.getReport());
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
+
+    private void sendReportButton_OnClick(View v) {
+        String report = reportEditText.getText().toString().trim();
+        if (!report.isEmpty()) {
+            reportInputLayout.setVisibility(View.GONE);
+            sendReportButton.setVisibility(View.GONE);
+
+            updateUserReportDB(report);
+            updateUserStatusUpdtateTimeDB();
+
+        } else {
+            Toast.makeText(requireContext(), "Please enter report details.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void changeStatusBorder(ImageView imgView, String status) {
-        int statusBorder = status.contains("Safe") ? R.drawable.circle_border_green : R.drawable.circle_border_red;
+        int statusBorder = status.equals("Safe") ? R.drawable.circle_border_green : R.drawable.circle_border_red;
 
         imgView.setBackground(
                 getResources().getDrawable(
@@ -173,20 +223,28 @@ public class StatusFragment extends Fragment {
                         requireContext().getTheme()));
     }
 
-    private void markSafeButton_OnClick(View v) {
-        changeStatusBorder(profileImageView, "Safe");
-        reportInputLayout.setVisibility(View.GONE);
-        sendReportButton.setVisibility(View.GONE);
-
-        String userStatusPath = dbManager.getUserProfilePath() + "/status";
-        dbManager.saveData(userStatusPath, "Safe", new DatabaseCallback() {
+    private void updateUserStatusDB(String status) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String userStatusPath = dbManager.getUserProfilePath(currentUser.getUid()) + "/status";
+        dbManager.saveData(userStatusPath, status, new DatabaseCallback() {
             @Override
             public void onSuccess() {
+                dbManager.readData(dbManager.getUserProfilePath(currentUser.getUid()), UserProfile.class, new ReadCallback<UserProfile>() {
+                    @Override
+                    public void onSuccess(UserProfile data) {
+                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate());
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+
+                    }
+                });
                 new Handler().post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getContext(), "You've been marked safe",
-                                Toast.LENGTH_LONG)
+                        Toast.makeText(getContext(), "Status Updated",
+                                        Toast.LENGTH_LONG)
                                 .show();
                     }
                 });
@@ -198,51 +256,60 @@ public class StatusFragment extends Fragment {
                     @Override
                     public void run() {
                         Toast.makeText(getContext(), "Failed to mark you safe",
-                                Toast.LENGTH_LONG)
+                                        Toast.LENGTH_LONG)
                                 .show();
                     }
                 });
             }
         });
     }
+    private void updateUserStatusUpdtateTimeDB() {
+        String userStatusPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/latestTimeStatusUpdate";
 
-    private void sendReportButton_OnClick(View v) {
-        String report = reportEditText.getText().toString().trim();
-        if (!report.isEmpty()) {
-            Toast.makeText(requireContext(), "Report sent: " + report, Toast.LENGTH_SHORT).show();
-            reportInputLayout.setVisibility(View.GONE);
-            sendReportButton.setVisibility(View.GONE);
 
-            String userStatusPath = dbManager.getUserProfilePath() + "/status";
-            dbManager.saveData(userStatusPath, report, new DatabaseCallback() {
-                @Override
-                public void onSuccess() {
-                    new Handler().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), "Report sent",
-                                            Toast.LENGTH_LONG)
-                                    .show();
-                        }
-                    });
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    new Handler().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), "Failed to send report",
-                                            Toast.LENGTH_LONG)
-                                    .show();
-                        }
-                    });
-                }
-            });
-
-        } else {
-            Toast.makeText(requireContext(), "Please enter report details.", Toast.LENGTH_SHORT).show();
+        LocalDateTime now = null;
+        String formattedDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            now = LocalDateTime.now();
+            formattedDate = DateTimeFormatter.ofPattern("hh:mm a | yyyy-MM-dd").format(now);
         }
+        dbManager.saveData(userStatusPath, formattedDate, new DatabaseCallback() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "Failed to mark you safe",
+                                        Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+            }
+        });
+    }
+    private void updateUserReportDB(String report) {
+        String userStatusPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/report";
+        dbManager.saveData(userStatusPath, report, new DatabaseCallback() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "Failed to mark you safe",
+                                        Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+            }
+        });
     }
 
     private void setImageClickListener(ImageView imageView, String name, String status, String lastUpdate, String... extraDetails) {

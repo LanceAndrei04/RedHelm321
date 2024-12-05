@@ -6,6 +6,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
+
 public class UserProfile {
     public static final String DEFAULT_PROFILE_PIC = "https://i.imgur.com/ACeuiSf.png";
     private String userImgLink;
@@ -19,10 +21,12 @@ public class UserProfile {
     private String status;
     private String report;
     private String latestTimeStatusUpdate;
+    private ArrayList<String> friendIDList;
 
 
     // Default no-argument constructor required by Firebase
     public UserProfile() {
+        this.friendIDList = new ArrayList<>();
     }
 
     // Constructor for manual instantiation
@@ -32,7 +36,7 @@ public class UserProfile {
             String address, String phoneNumber,
             String bloodType, String email,
             String status, String latestTimeStatusUpdate,
-            String report) {
+            String report, ArrayList<String> friendIDList) {
 
         this.userImgLink = userImgLink;
         this.name = name;
@@ -45,6 +49,7 @@ public class UserProfile {
         this.status = status;
         this.latestTimeStatusUpdate = latestTimeStatusUpdate;
         this.report = report;
+        this.friendIDList = friendIDList;
 
     }
 
@@ -144,6 +149,14 @@ public class UserProfile {
         this.email = email;
     }
 
+    // Getters and Setters for friendIDList
+    public ArrayList<String> getFriendIDList() {
+        return friendIDList;
+    }
+
+    public void setFriendIDList(ArrayList<String> friendIDList) {
+        this.friendIDList = friendIDList;
+    }
 
     // Static Builder Class for manual creation
     public static class Builder {
@@ -158,6 +171,7 @@ public class UserProfile {
         private String status;
         private String report;
         private String latestTimeStatusUpdate;
+        private ArrayList<String> friendIDList;
 
         public Builder setLatestTimeStatusUpdate(String latestTimeStatusUpdate) {
             this.latestTimeStatusUpdate = latestTimeStatusUpdate;
@@ -214,11 +228,16 @@ public class UserProfile {
             return this;
         }
 
+        public Builder setFriendIDList(ArrayList<String> friendIDList) {
+            this.friendIDList = friendIDList;
+            return this;
+        }
+
         public UserProfile build() {
             return new UserProfile(
                     userImgLink, name, age, birthDate,
                     address, phoneNumber, bloodType, email,
-                    status, latestTimeStatusUpdate, report);
+                    status, latestTimeStatusUpdate, report, friendIDList);
         }
     }
 }
