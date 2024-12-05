@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="8dp"
+    android:background="@drawable/widget_background">
+
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_centerHorizontal="true"
+        android:text="RedHelm 321"
+        android:textColor="@color/red_primary"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/widget_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/widget_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Status: Safe"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <ImageView
+        android:id="@+id/widget_sos_button"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/connectbutton"
+        android:layout_below="@id/widget_status"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/circular_button_background"
+        android:scaleType="fitCenter"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:clickable="true"/>
+
+
+</RelativeLayout>
