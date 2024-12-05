@@ -22,19 +22,23 @@
             android:gravity="center">
 
             <FrameLayout
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
                 android:layout_marginBottom="16dp"
                 android:layout_marginTop="40dp">
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/profileImageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
                     android:src="@drawable/default_profile"
                     android:scaleType="centerCrop"
-                    android:background="@drawable/circle_background"
-                    android:clipToOutline="true" />
+                    android:padding="8dp"
+                    app:strokeWidth="8dp"
+                    app:strokeColor="@color/gray"
+                    app:shapeAppearanceOverlay="@style/CircleImageView"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/editImageButton"
