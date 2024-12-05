@@ -27,12 +27,13 @@ public class Server extends Thread {
     ExecutorService threadPool;
     ArrayList<ConnectionHandler> connections;
 
-
+    final ReceiveMessageCallback receiveMessageCallback;
 
     Handler handler;
     private boolean isRunning;
 
-    public Server(FragmentActivity sourceActivity) {
+    public Server(FragmentActivity sourceActivity, ReceiveMessageCallback receiveMessageCallback) {
+        this.receiveMessageCallback = receiveMessageCallback;
         this.connections = new ArrayList<>();
         this.sourceActivity = sourceActivity;
         this.handler = new Handler();
@@ -115,8 +116,6 @@ public class Server extends Thread {
                 inputStream = new DataInputStream(clientSocket.getInputStream());
                 outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-                outputStream.writeUTF("SUCCESSFULLY CONNECTED!");
-
                 String inMessage;
                 while ((inMessage = inputStream.readUTF()) != null) {
                     String finalInMessage = inMessage;
@@ -134,6 +133,7 @@ public class Server extends Thread {
 
         public void receiveMessage(String finalInMessage) {
             //TODO: Receive message from server
+            receiveMessageCallback.updateMessageUI(finalInMessage);
             broadcastMessage(finalInMessage);
         }
 

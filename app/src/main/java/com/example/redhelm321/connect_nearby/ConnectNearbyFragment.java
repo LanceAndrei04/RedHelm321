@@ -38,6 +38,8 @@ import com.example.redhelm321.utils.PermissionManager;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class ConnectNearbyFragment extends Fragment {
@@ -139,6 +141,12 @@ public class ConnectNearbyFragment extends Fragment {
             @Override
             public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
                 final InetAddress groupOwnerAddress = wifiP2pInfo.groupOwnerAddress;
+                ReceiveMessageCallback receiveMessageCallback = new ReceiveMessageCallback() {
+                    @Override
+                    public void updateMessageUI(String receivedMessage) {
+                        updateUI_OnMessage(receivedMessage);
+                    }
+                };
 
 
                 if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
@@ -147,7 +155,7 @@ public class ConnectNearbyFragment extends Fragment {
 
                     if(serverClass == null) {
                         NICKNAME = wifiP2pInfo.groupOwnerAddress.getHostAddress();
-                        serverClass = new Server(getActivity());
+                        serverClass = new Server(getActivity(), receiveMessageCallback);
                         serverClass.start();
                     }
                 }
@@ -155,9 +163,12 @@ public class ConnectNearbyFragment extends Fragment {
 //                    tv_connectionStatus.setText("CONNECTED");
                     updateUI_OnConnect("CLIENT");
                     isHost = false;
+
                     clientClass = new Client(
                             getActivity(),
-                            groupOwnerAddress.getHostAddress());
+                            groupOwnerAddress.getHostAddress(),
+                            receiveMessageCallback
+                    );
                     clientClass.start();
                 }
             }
@@ -179,6 +190,18 @@ public class ConnectNearbyFragment extends Fragment {
                 lv_discoveredDevices_OnItemClick(adapterView, view, i, l);
             }
         });
+    }
+
+    private void updateUI_OnMessage(String receivedMessage) {
+        if (!receivedMessage.isEmpty()) {
+            // Create and add the message
+            Message message = new Message(receivedMessage, false);
+            messageAdapter.addMessage(message);
+
+            // Clear input and scroll to bottom
+            messageInput.setText("");
+            chatRecyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+        }
     }
 
     private void updateUI_OnConnect(String role) {
@@ -319,16 +342,21 @@ public class ConnectNearbyFragment extends Fragment {
     }
 
     private void sendMessage() {
-        String messageText = messageInput.getText().toString().trim();
-        if (!messageText.isEmpty()) {
-            // Create and add the message
-            Message message = new Message(messageText, true);
-            messageAdapter.addMessage(message);
+        String message = messageInput.getText().toString();
 
-            // Clear input and scroll to bottom
-            messageInput.setText("");
-            chatRecyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
-        }
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                if(isHost) {
+                    serverClass.broadcastMessage(message);
+                }
+                else {
+                    clientClass.sendMessage(message);
+                }
+            }
+        });
     }
 
     private void cancel_scan_onClick() {

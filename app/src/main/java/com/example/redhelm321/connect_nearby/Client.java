@@ -28,13 +28,17 @@ public class Client extends Thread {
     Handler handler;
     FragmentActivity sourceActivity;
 
-    public Client(FragmentActivity sourceActivity, String serverIP) {
+    private final ReceiveMessageCallback receiveMessagecallback;
+
+    public Client(FragmentActivity sourceActivity, String serverIP, ReceiveMessageCallback receiveMessagecallback) {
+        this.receiveMessagecallback = receiveMessagecallback;
         this.serverIP = serverIP;
         this.handler = new Handler();
         this.sourceActivity = sourceActivity;
     }
 
     private void receiveMessage(String message) {
+        receiveMessagecallback.updateMessageUI(message);
         updateMessageUI(message);
     }
 
