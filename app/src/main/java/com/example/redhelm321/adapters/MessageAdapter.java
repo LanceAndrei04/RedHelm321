@@ -19,7 +19,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int VIEW_TYPE_RECEIVED = 2;
     private static final int VIEW_TYPE_NOTIFICATION = 3;
     private List<Message> messages = new ArrayList<>();
-    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
     @NonNull
 

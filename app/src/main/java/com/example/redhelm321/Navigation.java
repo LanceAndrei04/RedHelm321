@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.redhelm321.connect_nearby.ConnectNearbyFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -18,7 +19,7 @@ public class Navigation extends AppCompatActivity {
     private FrameLayout frameLayout;
     private BottomNavigationView bottomNavigationView;
 
-    private Fragment connectFragment = new ConnectFragment();
+    private Fragment connectFragment = new ConnectNearbyFragment();
     private Fragment hotlineFragment = new HotlineFragment();
     private Fragment statusFragment = new StatusFragment();
     private Fragment profileFragment = new ProfileFragment();

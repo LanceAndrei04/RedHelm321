@@ -1,16 +1,17 @@
 package com.example.redhelm321;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -18,25 +19,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.redhelm321.authentication.LoginActivity;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.redhelm321.connect_nearby.ConnectNearbyFragment;
+import com.example.redhelm321.connect_nearby.WIFI_P2P_SharedData;
+import com.example.redhelm321.connect_nearby.WiFiDirectBroadcastReceiver;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.HashMap;
-
 public class MainActivity extends AppCompatActivity {
 
+    public static final int IP_PORT =  1307;
     private FrameLayout frameLayout;
     private BottomNavigationView bottomNavigationView;
 
@@ -55,6 +49,12 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment activeFragment;
 
+    WifiManager wifiManager;
+    WifiP2pManager wifiP2pManager;
+    WifiP2pManager.Channel wifiP2pChannel;
+    BroadcastReceiver broadcastReceiver;
+    IntentFilter intentFilter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +66,22 @@ public class MainActivity extends AppCompatActivity {
         InitializeAuth();
         HandleUserAuthentication();
 
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WIFI_P2P_SharedData.setWifiManager(wifiManager);
+
+        wifiP2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        wifiP2pChannel = wifiP2pManager.initialize(this, getMainLooper(), null);
+        broadcastReceiver = new WiFiDirectBroadcastReceiver(wifiP2pManager, wifiP2pChannel, this);
+        WIFI_P2P_SharedData.setWifiP2pManager(wifiP2pManager);
+        WIFI_P2P_SharedData.setWifiP2pChannel(wifiP2pChannel);
+        WIFI_P2P_SharedData.setBroadcastReceiver(broadcastReceiver);
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        WIFI_P2P_SharedData.setIntentFilter(intentFilter);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -81,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if(mAuth.getCurrentUser() != null) {
-            connectFragment = new ConnectFragment();
+            connectFragment = new ConnectNearbyFragment();
             hotlineFragment = new HotlineFragment();
             statusFragment = new StatusFragment();
             profileFragment = new ProfileFragment();
