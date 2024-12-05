@@ -23,7 +23,7 @@ public class ConnectFragment extends Fragment {
 
     private static final String TAG = "ConnectFragment";
 
-    Button btn_db_debug, btn_db_read_debug;
+    Button btn_db_debug, btn_db_read_debug, scan_nearby_people;
     DatabaseManager dbManager;
     FirebaseAuth mAuth;
     String userProfilePath;
@@ -62,6 +62,23 @@ public class ConnectFragment extends Fragment {
             }
         });
 
+        scan_nearby_people = rootView.findViewById(R.id.scan_nearby_people);
+        scan_nearby_people.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                scan_nearby_people_OnClick();
+            }
+        });
+    }
+
+    private void scan_nearby_people_OnClick() {
+        ChatFragment chatFragment = new ChatFragment();
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frame_layout, chatFragment) // Replace with the ID of your container layout
+                .addToBackStack(null) // Add this transaction to the back stack so users can navigate back
+                .commit();
     }
 
     private void btn_db_read_debug_OnClick() {
@@ -102,4 +119,5 @@ public class ConnectFragment extends Fragment {
             }
         });
     }
+    
 }

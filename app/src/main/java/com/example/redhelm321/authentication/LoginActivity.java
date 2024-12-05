@@ -94,6 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient.signOut();
 
         mAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
