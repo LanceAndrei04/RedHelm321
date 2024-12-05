@@ -9,8 +9,12 @@ import android.view.ActionProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
@@ -28,14 +32,23 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ProfileFragment extends Fragment implements ActionProvider.VisibilityListener {
-    private TextView nameTextView, emailTextView, contactTextView;
+    private TextView nameTextView, emailTextView;
     private ImageView iv_profileImageView;
     private FloatingActionButton fbtn_editImageButton;
+    private ListView contactListView;
+    private EditText contactInputEditText;
+    private ImageButton addContactButton;
     private TextInputEditText et_nameEditText, et_emailEditText, et_contactNumberEditText, et_birthdayEditText, et_bloodTypeEditText, et_addressEditText;
-    private Button saveButton, logoutButton;;
+    private Button saveButton, logoutButton, viewContactsBtn;
+    private LinearLayout profileForm, contactListLayout;
+    private ArrayList<String> contacts;
+    private ArrayAdapter<String> contactAdapter;
+
+
 
     FirebaseAuth mAuth;
     DatabaseManager dbManager;
@@ -48,6 +61,10 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
 
         InitializeComponent(view);
         loadProfileFromDatabase();
+
+        contacts = new ArrayList<>();
+        contactAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, contacts);
+        contactListView.setAdapter(contactAdapter);
 
         return view;
     }
@@ -81,7 +98,6 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         // Initialize TextViews from header section
         nameTextView = view.findViewById(R.id.nameTextView);
         emailTextView = view.findViewById(R.id.emailTextView);
-        contactTextView = view.findViewById(R.id.contactTextView);
 
         // Initialize EditTexts from input fields
         et_nameEditText = view.findViewById(R.id.nameEditText);
@@ -95,6 +111,16 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         // Initialize Save Button
         saveButton = view.findViewById(R.id.saveButton);
         logoutButton = view.findViewById(R.id.loginButton);
+        viewContactsBtn = view.findViewById(R.id.viewContactsBtn);
+
+        //Initialize linear layout
+        profileForm = view.findViewById(R.id.profileForm);
+        contactListLayout = view.findViewById(R.id.contactListLayout);
+
+        //Initialize Add contact
+        contactListView = view.findViewById(R.id.contactListView);
+        contactInputEditText = view.findViewById(R.id.contactInputEditText);
+        addContactButton = view.findViewById(R.id.addContactButton);
 
         // Birthday picker setup
         EditText birthdayEditText = view.findViewById(R.id.birthdayEditText);
@@ -106,7 +132,45 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
             mAuth.signOut();
             getActivity().finish();
         });
+
+        viewContactsBtn.setOnClickListener(v -> {
+            change_linear_layout();
+        });
+
+        addContactButton.setOnClickListener(v -> {
+            addContactToList();
+        });
     }
+
+    private void addContactToList() {
+        String newContact = contactInputEditText.getText().toString().trim(); // Get text from EditText
+        if (!newContact.isEmpty()) {
+            contacts.add(newContact); // Add new contact to list
+            contactAdapter.notifyDataSetChanged(); // Refresh ListView
+            contactInputEditText.setText(""); // Clear the EditText
+        } else {
+            Toast.makeText(getContext(), "Please enter a valid contact!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+    private void change_linear_layout() {
+        if (profileForm.getVisibility() == View.VISIBLE) {
+            viewContactsBtn.setTextColor(getResources().getColor(R.color.white));
+            viewContactsBtn.setBackgroundTintList(getResources().getColorStateList(R.color.red_700));
+
+            profileForm.setVisibility(View.GONE);
+            contactListLayout.setVisibility(View.VISIBLE);
+        } else {
+            viewContactsBtn.setTextColor(getResources().getColor(R.color.red_primary));
+            viewContactsBtn.setBackgroundTintList(getResources().getColorStateList(R.color.white));
+
+            contactListLayout.setVisibility(View.GONE);
+            profileForm.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     private void saveProfileToDatabase() {
         String name = et_nameEditText.getText().toString();
@@ -177,7 +241,6 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
 
             nameTextView.setText(userProfile.getName());
             emailTextView.setText(userProfile.getEmail());
-            contactTextView.setText(userProfile.getPhoneNumber());
 
             et_emailEditText.setText(userProfile.getEmail());
             et_nameEditText.setText(userProfile.getName());

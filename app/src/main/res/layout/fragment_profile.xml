@@ -60,73 +60,51 @@
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/emailTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                android:text="email@gmail.com"
+                android:textColor="@color/gray"
+                android:drawableStart="@drawable/ic_email"
+                android:drawableTint="@color/gray"
+                android:drawablePadding="5dp"
+                android:layout_marginTop="5dp"/>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_email"
-                        app:tint="#FFFFFF" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/viewContactsBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View Contacts"
+                android:backgroundTint="@color/white"
+                android:textColor="@color/red_primary"/>
 
-                    <TextView
-                        android:id="@+id/emailTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="redhelm321@email.com"
-                        android:textSize="14sp"
-                        android:textColor="#FFFFFF"
-                        android:layout_marginStart="8dp" />
-                </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginStart="20dp">
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_hotline"
-                        app:tint="#FFFFFF" />
-
-                    <TextView
-                        android:id="@+id/contactTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:text="+63 912 345 6789"
-                        android:textColor="#FFFFFF"
-                        android:layout_marginStart="8dp" />
-                </LinearLayout>
-            </LinearLayout>
         </LinearLayout>
 
         <!-- Input Fields Enclosed in CardView -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginBottom="-30dp"
             app:cardCornerRadius="20dp"
-            app:cardBackgroundColor="@android:color/white">
+            app:cardBackgroundColor="#FAEDED">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+            <LinearLayout
+                android:id="@+id/profileForm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -255,12 +233,81 @@
                     android:id="@+id/loginButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/red_500"
+                    android:backgroundTint="@color/dark_gray"
                     android:clickable="true"
                     android:padding="12dp"
                     android:text="Sign out"
                     app:cornerRadius="8dp"
                     android:layout_marginBottom="15dp"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/contactListLayout"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:orientation="vertical"
+                android:paddingTop="16dp"
+                android:visibility="gone">
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp">
+
+                    <EditText
+                        android:id="@+id/contactInputEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@android:drawable/edit_text"
+                        android:hint="Add UID"
+                        android:inputType="number"
+                        android:maxLines="4"
+                        android:minHeight="40dp"
+                        android:padding="8dp"
+                        />
+                    <ImageButton
+                        android:id="@+id/addContactButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/ic_add_contact"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Add Contact"
+                        app:tint="@color/red_primary" />
+
+                </LinearLayout>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:textSize="20sp"
+                    android:text="Contacts"
+                    android:textStyle="bold"
+                    android:textColor="@color/red_primary"
+                    android:gravity="center"/>
+
+
+                <ListView
+                    android:id="@+id/contactListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:divider="@color/gray"
+                    android:dividerHeight="1dp" />
+
+                </LinearLayout>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
