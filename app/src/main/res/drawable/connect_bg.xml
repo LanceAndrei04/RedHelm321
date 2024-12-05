@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#40FF0000"> <!-- Semi-transparent red ripple -->
+
+    <!-- Background Image -->
+    <item>
+        <layer-list>
+            <!-- Background Image Layer -->
+            <item>
+                <bitmap
+                    android:src="@drawable/connectbutton"
+                    android:gravity="center" />
+            </item>
+
+            <!-- Ripple Animation Shape -->
+            <item>
+                <shape android:shape="oval">
+                    <size android:width="200dp" android:height="200dp" />
+                    <solid android:color="@android:color/transparent" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <!-- Ripple Mask -->
+    <item android:id="@android:id/mask">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/black" />
+        </shape>
+    </item>
+</ripple>
