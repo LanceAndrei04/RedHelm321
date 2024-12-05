@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.glide)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.zxing.android.embedded)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

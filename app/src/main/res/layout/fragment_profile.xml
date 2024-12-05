@@ -80,7 +80,13 @@
                 android:backgroundTint="@color/white"
                 android:textColor="@color/red_primary"/>
 
-
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ShareProfileBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Share Profile"
+                android:backgroundTint="@color/white"
+                android:textColor="@color/red_primary"/>
 
         </LinearLayout>
 
@@ -133,13 +139,17 @@
                     app:endIconDrawable="@drawable/ic_email"
                     app:endIconMode="custom"
                     app:endIconTint="@color/dark_gray"
-                    app:hintTextColor="@color/red_500">
+                    app:hintTextColor="@color/red_500"
+                    android:clickable="false"
+                    android:focusable="false">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/emailEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Email" />
+                        android:hint="Email"
+                        android:enabled="false"
+                        android:textColor="@color/dark_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -312,5 +322,11 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+
+
+
     </LinearLayout>
+
+
+
 </ScrollView>
