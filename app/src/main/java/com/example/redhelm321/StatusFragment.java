@@ -31,6 +31,11 @@ import com.example.redhelm321.database.ReadCallback;
 import com.example.redhelm321.profile.UserProfile;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -52,7 +57,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-public class StatusFragment extends Fragment {
+public class StatusFragment extends Fragment implements OnMapReadyCallback {
     private static final int MAX_DISPLAY_FRIEND = 6;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private ShapeableImageView profileImageView,
@@ -62,6 +67,8 @@ public class StatusFragment extends Fragment {
     private TextInputEditText reportEditText;
     private FusedLocationProviderClient fusedLocationClient;
     private String currentLocation = "Unknown";
+    private MapView mapView;
+    private GoogleMap gMap;
 
     FirebaseAuth mAuth;
     FirebaseDatabase firebaseDatabase;
@@ -119,6 +126,11 @@ public class StatusFragment extends Fragment {
         reportInputLayout = view.findViewById(R.id.reportInputLayout);
         reportEditText = view.findViewById(R.id.reportEditText);
         sendReportButton = view.findViewById(R.id.sendReportButton);
+
+        // Initialize MapView
+        mapView = view.findViewById(R.id.mapView);
+        mapView.onCreate(getArguments() != null ? getArguments().getBundle("savedInstanceState") : null);
+        mapView.getMapAsync(this);
 
         // Set click listeners for status buttons
         markSafeButton.setOnClickListener(v -> {
@@ -519,5 +531,72 @@ public class StatusFragment extends Fragment {
                         Log.e("LOCATION_DEBUG", "Error getting location", e);
                     });
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        gMap = googleMap;
+
+        // Check for location permissions
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Request permissions
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+        // Get the user's location
+        fusedLocationClient.getLastLocation()
+            .addOnSuccessListener(requireActivity(), location -> {
+                if (location != null) {
+                    // Move the camera to the user's location
+                    LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15)); // Zoom level can be adjusted
+                    gMap.setMyLocationEnabled(true); // Enable the location layer
+
+                    // Get the city name using Geocoder
+                    Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                    try {
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        if (addresses != null && !addresses.isEmpty()) {
+                            String cityName = addresses.get(0).getLocality(); // Get the city name
+                            // Display the city name in a TextView or log it
+                            Log.d("Location", "City: " + cityName);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mapView.onSaveInstanceState(outState);
     }
 }
