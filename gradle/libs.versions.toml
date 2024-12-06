@@ -12,6 +12,7 @@ firebaseDatabase = "21.0.0"
 firebaseAuth = "23.1.0"
 comGoogleGmsGoogleServicesGradlePlugin = "4.4.2"
 playServicesAuth = "21.2.0"
+playServicesLocation = "21.0.1"
 glide = "5.0.0-rc01"
 uiTextGoogleFonts = "1.8.0-alpha06"
 uiTextGoogleFontsVersion = "1.7.5"
@@ -29,6 +30,7 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 com-google-gms-google-services-gradle-plugin = { group = "com.google.gms.google-services", name = "com.google.gms.google-services.gradle.plugin", version.ref = "comGoogleGmsGoogleServicesGradlePlugin" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFontsVersion" }
@@ -37,4 +39,3 @@ zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embe
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
-

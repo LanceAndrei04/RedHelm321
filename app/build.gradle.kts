@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.com.google.gms.google.services.gradle.plugin)
     implementation(libs.play.services.auth)
+    implementation(libs.play.services.location)
     implementation(libs.glide)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.zxing.android.embedded)

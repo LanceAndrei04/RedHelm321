@@ -1,9 +1,17 @@
 package com.example.redhelm321;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -21,6 +29,8 @@ import com.example.redhelm321.database.DatabaseCallback;
 import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.database.ReadCallback;
 import com.example.redhelm321.profile.UserProfile;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -33,19 +43,25 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class StatusFragment extends Fragment {
     private static final int MAX_DISPLAY_FRIEND = 6;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private ShapeableImageView profileImageView,
             iv_friendImageView1, iv_friendImageView2, iv_friendImageView3, iv_friendImageView4, iv_friendImageView5;
     private MaterialButton markSafeButton, needHelpButton, sendReportButton;
     private TextInputLayout reportInputLayout;
     private TextInputEditText reportEditText;
+    private FusedLocationProviderClient fusedLocationClient;
+    private String currentLocation = "Unknown";
 
     FirebaseAuth mAuth;
     FirebaseDatabase firebaseDatabase;
@@ -60,8 +76,10 @@ public class StatusFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_status, container, false);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         InitializeComponent(rootView);
         loadProfileFromDatabase();
+        checkLocationPermission();
 
         return rootView;
     }
@@ -160,7 +178,7 @@ public class StatusFragment extends Fragment {
             String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
             ShapeableImageView iv_friendImageView = Objects.requireNonNull(friendProfileIds.get(profileId));
 
-            setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate(), friendProfile.getReport());
+            setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate(), friendProfile.getReport(), friendProfile.getLocation());
 
             changeStatusBorder(
                     iv_friendImageView,
@@ -191,7 +209,8 @@ public class StatusFragment extends Fragment {
                     currentUserProfile.getName(), 
                     currentStatus, 
                     latestTimeStatusUpdate,
-                    report);
+                    report,
+                    currentUserProfile.getLocation());
 
                 updateProfileUI(data);
             }
@@ -217,6 +236,7 @@ public class StatusFragment extends Fragment {
 
         String status = "Safe";
         Log.d("STATUS_DEBUG", "Marking as safe");
+        updateLocation(status);
         updateUserStatusUpdtateTimeDB();
         updateUserStatusDB(status);
         updateUserReportDB("");
@@ -227,7 +247,7 @@ public class StatusFragment extends Fragment {
             @Override
             public void onSuccess(UserProfile data) {
                 Log.d("STATUS_DEBUG", "Profile reloaded after marking safe. Status: " + data.getStatus() + ", Report: " + data.getReport());
-                setImageClickListener(profileImageView, data.getName(), status, data.getLatestTimeStatusUpdate(), "");
+                setImageClickListener(profileImageView, data.getName(), status, data.getLatestTimeStatusUpdate(), "", data.getLocation());
             }
 
             @Override
@@ -239,6 +259,7 @@ public class StatusFragment extends Fragment {
 
     private void needHelpButton_OnClick(View v) {
         changeStatusBorder(profileImageView, "Need Help");
+        updateLocation("Not Safe");
         updateUserStatusDB("Not Safe");
         updateUserStatusUpdtateTimeDB();
         reportInputLayout.setVisibility(View.VISIBLE);
@@ -248,6 +269,7 @@ public class StatusFragment extends Fragment {
             @Override
             public void onSuccess(UserProfile data) {
                 reportEditText.setText(data.getReport());
+                setImageClickListener(profileImageView, data.getName(), "Not Safe", data.getLatestTimeStatusUpdate(), data.getReport(), data.getLocation());
             }
 
             @Override
@@ -293,7 +315,7 @@ public class StatusFragment extends Fragment {
                 dbManager.readData(dbManager.getUserProfilePath(currentUser.getUid()), UserProfile.class, new ReadCallback<UserProfile>() {
                     @Override
                     public void onSuccess(UserProfile data) {
-                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate(), data.getReport());
+                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate(), data.getReport(), data.getLocation());
                     }
 
                     @Override
@@ -362,7 +384,7 @@ public class StatusFragment extends Fragment {
                     @Override
                     public void onSuccess(UserProfile data) {
                         Log.d("REPORT_DEBUG", "Profile reloaded. Status: " + data.getStatus() + ", Report: " + data.getReport());
-                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate(), data.getReport());
+                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate(), data.getReport(), data.getLocation());
                     }
 
                     @Override
@@ -379,7 +401,7 @@ public class StatusFragment extends Fragment {
         });
     }
 
-    private void setImageClickListener(ImageView imageView, String name, String status, String lastUpdate, String... extraDetails) {
+    private void setImageClickListener(ImageView imageView, String name, String status, String lastUpdate, String report, String location) {
         imageView.setOnClickListener(v -> {
             View popupView = LayoutInflater.from(requireContext()).inflate(R.layout.popup_info, null);
             PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -391,7 +413,6 @@ public class StatusFragment extends Fragment {
             TextView lastUpdateTextView = popupView.findViewById(R.id.popupLastUpdate);
 
             nameTextView.setText(name);
-
             statusTextView.setText(status);
             statusTextView.setTextColor(
                     getResources().getColor(
@@ -399,33 +420,104 @@ public class StatusFragment extends Fragment {
                     )
             );
 
-            lastUpdateTextView.setText(lastUpdate);
+            lastUpdateTextView.setText(lastUpdate != null ? lastUpdate : "No updates yet");
 
-            Log.d("POPUP_DEBUG", "Status: " + status);
-            Log.d("POPUP_DEBUG", "Extra details length: " + extraDetails.length);
-            if (extraDetails.length > 0) {
-                Log.d("POPUP_DEBUG", "Report content: " + extraDetails[0]);
+            // Set location
+            if (location != null && !location.isEmpty()) {
+                locationTextView.setText(location);
+                locationTextView.setVisibility(View.VISIBLE);
+            } else {
+                locationTextView.setVisibility(View.GONE);
             }
 
             // Only show report if status is not Safe and report exists
-            if (!status.equals("Safe") && extraDetails.length > 0 && extraDetails[0] != null && !extraDetails[0].isEmpty()) {
-                Log.d("POPUP_DEBUG", "Showing report: " + extraDetails[0]);
-                reportTextView.setText(extraDetails[0]);
+            if (!status.equals("Safe") && report != null && !report.isEmpty()) {
+                Log.d("POPUP_DEBUG", "Showing report: " + report);
+                reportTextView.setText(report);
                 reportTextView.setVisibility(View.VISIBLE);
             } else {
                 Log.d("POPUP_DEBUG", "Hiding report. Status safe: " + status.equals("Safe") 
-                    + ", Has extras: " + (extraDetails.length > 0)
-                    + ", Report empty: " + (extraDetails.length > 0 ? extraDetails[0].isEmpty() : "no report"));
+                    + ", Report empty: " + (report == null || report.isEmpty()));
                 reportTextView.setVisibility(View.GONE);
-            }
-
-            if (extraDetails.length > 1) {
-                locationTextView.setText("Location: " + extraDetails[1]);
-                locationTextView.setVisibility(View.VISIBLE);
             }
 
             popupWindow.setFocusable(true);
             popupWindow.showAtLocation(imageView, Gravity.CENTER, 0, 0);
         });
+    }
+
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private void updateLocation(String status) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            // Get detailed address from location
+                            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                            try {
+                                List<Address> addresses = geocoder.getFromLocation(
+                                        location.getLatitude(),
+                                        location.getLongitude(),
+                                        1);
+                                if (addresses != null && addresses.size() > 0) {
+                                    Address address = addresses.get(0);
+                                    StringBuilder locationBuilder = new StringBuilder();
+                                    
+                                    // Get street address
+                                    String streetAddress = address.getAddressLine(0);
+                                    if (streetAddress != null) {
+                                        locationBuilder.append(streetAddress);
+                                    } else {
+                                        // Fallback to individual components if full address line is not available
+                                        if (address.getThoroughfare() != null) {
+                                            locationBuilder.append(address.getThoroughfare()); // Street name
+                                            if (address.getSubThoroughfare() != null) {
+                                                locationBuilder.append(" ").append(address.getSubThoroughfare()); // Street number
+                                            }
+                                            locationBuilder.append(", ");
+                                        }
+                                        if (address.getLocality() != null) {
+                                            locationBuilder.append(address.getLocality()).append(", "); // City
+                                        }
+                                        if (address.getAdminArea() != null) {
+                                            locationBuilder.append(address.getAdminArea()); // State
+                                        }
+                                    }
+
+                                    currentLocation = locationBuilder.toString();
+                                    
+                                    // Save location to database
+                                    String userLocationPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/location";
+                                    dbManager.saveData(userLocationPath, currentLocation, new DatabaseCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            Log.d("LOCATION_DEBUG", "Location saved: " + currentLocation);
+                                        }
+
+                                        @Override
+                                        public void onFailure(Exception e) {
+                                            Log.e("LOCATION_DEBUG", "Failed to save location", e);
+                                        }
+                                    });
+                                }
+                            } catch (IOException e) {
+                                Log.e("LOCATION_DEBUG", "Error getting address", e);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("LOCATION_DEBUG", "Error getting location", e);
+                    });
+        }
     }
 }

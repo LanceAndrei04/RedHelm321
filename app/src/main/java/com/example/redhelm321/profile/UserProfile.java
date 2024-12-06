@@ -1,6 +1,5 @@
 package com.example.redhelm321.profile;
 
-
 import android.content.Context;
 import android.util.Log;
 import android.widget.ImageView;
@@ -25,6 +24,7 @@ public class UserProfile {
     private String status;
     private String report;
     private String latestTimeStatusUpdate;
+    private String location;
     private ArrayList<String> friendIDList;
 
 
@@ -40,7 +40,7 @@ public class UserProfile {
             String address, String phoneNumber,
             String bloodType, String email,
             String status, String latestTimeStatusUpdate,
-            String report, ArrayList<String> friendIDList) {
+            String report, String location, ArrayList<String> friendIDList) {
 
         this.userImgLink = userImgLink;
         this.name = name;
@@ -53,6 +53,7 @@ public class UserProfile {
         this.status = status;
         this.latestTimeStatusUpdate = latestTimeStatusUpdate;
         this.report = report;
+        this.location = location;
         this.friendIDList = friendIDList;
 
     }
@@ -91,7 +92,6 @@ public class UserProfile {
                             Log.e("DEBUG_USERFRIENDS", "Failed to save friend: " + e.getMessage(), e);
                         }
                     });
-
 
                     addUserToFriends(dbManager, friendId, userId);
                 } else {
@@ -153,6 +153,14 @@ public class UserProfile {
 
     public void setLatestTimeStatusUpdate(String latestTimeStatusUpdate) {
         this.latestTimeStatusUpdate = latestTimeStatusUpdate;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     // Getters and Setters (Firebase needs these or public fields)
@@ -242,6 +250,7 @@ public class UserProfile {
         private String status;
         private String report;
         private String latestTimeStatusUpdate;
+        private String location;
         private ArrayList<String> friendIDList;
 
         public Builder setLatestTimeStatusUpdate(String latestTimeStatusUpdate) {
@@ -299,6 +308,11 @@ public class UserProfile {
             return this;
         }
 
+        public Builder setLocation(String location) {
+            this.location = location;
+            return this;
+        }
+
         public Builder setFriendIDList(ArrayList<String> friendIDList) {
             this.friendIDList = friendIDList;
             return this;
@@ -308,7 +322,7 @@ public class UserProfile {
             return new UserProfile(
                     userImgLink, name, age, birthDate,
                     address, phoneNumber, bloodType, email,
-                    status, latestTimeStatusUpdate, report, friendIDList);
+                    status, latestTimeStatusUpdate, report, location, friendIDList);
         }
     }
 }
