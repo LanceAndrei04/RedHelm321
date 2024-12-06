@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -13,6 +14,7 @@
         android:layout_height="wrap_content"
         android:text=" "
         android:textColor="@color/black"
+        android:layout_marginTop="5dp"
         android:textStyle="bold"
         android:textSize="18sp" />
 
@@ -20,6 +22,7 @@
         android:id="@+id/popupStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:text="Status:"
         android:textSize="16sp" />
 
@@ -27,23 +30,34 @@
         android:id="@+id/popupReport"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:text="Report:"
         android:textSize="16sp"
-        android:visibility="gone" />
+        android:visibility="visible"
+        android:drawablePadding="5dp"
+        app:drawableStartCompat="@drawable/ic_report"
+        app:drawableTint="@color/red_primary" />
 
     <TextView
         android:id="@+id/popupLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Location:"
+        android:layout_marginTop="5dp"
+        android:text="Current Location:"
         android:textSize="16sp"
-        android:visibility="gone" />
+        app:drawableStartCompat="@drawable/ic_connect"
+        app:drawableTint="@color/dark_gray"
+        android:drawablePadding="5dp"/>
 
     <TextView
         android:id="@+id/popupLastUpdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:text="Last Update:"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:drawablePadding="5dp"
+        app:drawableStartCompat="@drawable/ic_last_update"
+        app:drawableTint="@color/dark_gray" />
 
 </LinearLayout>

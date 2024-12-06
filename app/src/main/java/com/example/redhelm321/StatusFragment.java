@@ -357,9 +357,16 @@ public class StatusFragment extends Fragment {
             TextView locationTextView = popupView.findViewById(R.id.popupLocation);
             TextView lastUpdateTextView = popupView.findViewById(R.id.popupLastUpdate);
 
-            nameTextView.setText("Name: " + name);
-            statusTextView.setText("Status: " + status);
-            lastUpdateTextView.setText("Last Update: " + lastUpdate);
+            nameTextView.setText(name);
+
+            statusTextView.setText(status);
+            statusTextView.setTextColor(
+                    getResources().getColor(
+                            status.equals("Safe") ? R.color.green : R.color.red_secondary
+                    )
+            );
+
+            lastUpdateTextView.setText(lastUpdate);
 
             Log.d("POPUP_DEBUG", "Status: " + status);
             Log.d("POPUP_DEBUG", "Extra details length: " + extraDetails.length);
@@ -370,7 +377,7 @@ public class StatusFragment extends Fragment {
             // Only show report if status is not Safe and report exists
             if (!status.equals("Safe") && extraDetails.length > 0 && extraDetails[0] != null && !extraDetails[0].isEmpty()) {
                 Log.d("POPUP_DEBUG", "Showing report: " + extraDetails[0]);
-                reportTextView.setText("Report: " + extraDetails[0]);
+                reportTextView.setText(extraDetails[0]);
                 reportTextView.setVisibility(View.VISIBLE);
             } else {
                 Log.d("POPUP_DEBUG", "Hiding report. Status safe: " + status.equals("Safe") 
