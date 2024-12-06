@@ -295,7 +295,7 @@
                         android:layout_weight="1"
                         android:background="@android:drawable/edit_text"
                         android:hint="Add UID"
-                        android:inputType="number"
+                        android:inputType="text"
                         android:maxLines="4"
                         android:minHeight="40dp"
                         android:padding="8dp"

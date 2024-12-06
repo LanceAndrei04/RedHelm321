@@ -164,9 +164,25 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
     private void addContactToList() {
         String newContact = contactInputEditText.getText().toString().trim(); // Get text from EditText
         if (!newContact.isEmpty()) {
-            contacts.add(newContact); // Add new contact to list
-            contactAdapter.notifyDataSetChanged(); // Refresh ListView
-            contactInputEditText.setText(""); // Clear the EditText
+            String newFriendProfilePath = dbManager.getUserProfilePath(newContact);
+            dbManager.readData(newFriendProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                @Override
+                public void onSuccess(UserProfile data) {
+                    UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), newContact);
+                    contacts.add(data.getName()); // Add new contact to list
+                    contactAdapter.notifyDataSetChanged(); // Refresh ListView
+                    contactInputEditText.setText(""); // Clear the EditText
+                    Toast.makeText(getContext(), data.getName() + " was added to contacts", Toast.LENGTH_SHORT).show();
+
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "No such user exist", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
         } else {
             ScanOptions options = new ScanOptions();
             options.setPrompt("Volume up to flash on");
@@ -179,34 +195,38 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
 
     ActivityResultLauncher<ScanOptions> barLaucher = registerForActivityResult(new ScanContract(), result->
     {
-        if(result.getContents() !=null)
-        {
-            String friendProfilePath = dbManager.getUserProfilePath(result.getContents());
-            dbManager.readData(friendProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
-                @Override
-                public void onSuccess(UserProfile data) {
-                    Toast.makeText(getContext(), "You are now friends with " + data.getName(), Toast.LENGTH_SHORT).show();
+        try {
+            if(result.getContents() !=null)
+            {
+                String friendProfilePath = dbManager.getUserProfilePath(result.getContents());
+                dbManager.readData(friendProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                    @Override
+                    public void onSuccess(UserProfile data) {
+                        Toast.makeText(getContext(), "You are now friends with " + data.getName(), Toast.LENGTH_SHORT).show();
 
-                    UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), result.getContents());
-                    String userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
-                    dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
-                        @Override
-                        public void onSuccess(UserProfile data) {
-                            updateContactsUI(data);
-                        }
+                        String userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
+                        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                            @Override
+                            public void onSuccess(UserProfile data) {
+                                UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), result.getContents());
+                                updateContactsUI(data);
+                            }
 
-                        @Override
-                        public void onFailure(Exception e) {
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(getContext(), "No such user exist", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
 
-                        }
-                    });
-                }
+                    @Override
+                    public void onFailure(Exception e) {
 
-                @Override
-                public void onFailure(Exception e) {
-
-                }
-            });
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Log.d("DEBUG_QRSCAN", e.getMessage());
         }
     });
 
@@ -340,6 +360,8 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
             Log.d("DEBUG_CONTACTS", "No friends found.");
             return;
         }
+
+        contacts.clear();
 
         for (String friendId : friendIds) {
             if(friendId.isEmpty()) continue;
