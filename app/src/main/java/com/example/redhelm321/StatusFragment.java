@@ -35,11 +35,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
 public class StatusFragment extends Fragment {
-    private static final int MAX_DISPLAY_FRIEND = 5;
+    private static final int MAX_DISPLAY_FRIEND = 6;
     private ShapeableImageView profileImageView,
             iv_friendImageView1, iv_friendImageView2, iv_friendImageView3, iv_friendImageView4, iv_friendImageView5;
     private MaterialButton markSafeButton, needHelpButton, sendReportButton;
@@ -117,13 +118,42 @@ public class StatusFragment extends Fragment {
     }
 
     private void InitializeFriendList(View view) {
-        friendProfileIds.put("SXi005pZ8vZZILr0wHKRZ14DZ5D2", view.findViewById(R.id.friendImageView1));
-        friendProfileIds.put("XPIPPiuONcafZdZoBNuKSunJ8J73", view.findViewById(R.id.friendImageView2));
-        friendProfileIds.put("y93MjFxb5ghxeJiPu1cL1t1uMk83", view.findViewById(R.id.friendImageView3));
+//        friendProfileIds.put("SXi005pZ8vZZILr0wHKRZ14DZ5D2", view.findViewById(R.id.friendImageView1));
+//        friendProfileIds.put("XPIPPiuONcafZdZoBNuKSunJ8J73", view.findViewById(R.id.friendImageView2));
+//        friendProfileIds.put("y93MjFxb5ghxeJiPu1cL1t1uMk83", view.findViewById(R.id.friendImageView3));
+        String userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
+        ArrayList<ShapeableImageView> iv_friendImageViews = new ArrayList<>();
+        iv_friendImageViews.add(view.findViewById(R.id.friendImageView1));
+        iv_friendImageViews.add(view.findViewById(R.id.friendImageView2));
+        iv_friendImageViews.add(view.findViewById(R.id.friendImageView3));
+        iv_friendImageViews.add(view.findViewById(R.id.friendImageView4));
+        iv_friendImageViews.add(view.findViewById(R.id.friendImageView5));
 
+
+        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+            @Override
+            public void onSuccess(UserProfile profile) {
+                ArrayList<String> friendIdList = profile.getFriendIDList();
+                if (friendIdList != null) {
+                    friendIdList.removeIf(String::isEmpty); // Remove all empty strings
+                }
+
+                for (int i = 0; i < MAX_DISPLAY_FRIEND; i++) {
+                    if (i >= friendIdList.size()) break;
+                    if (friendIdList.get(i).isEmpty()) continue;
+                    friendProfileIds.put(friendIdList.get(i), (ShapeableImageView) iv_friendImageViews.get(i));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
     }
 
     private void database_onDataChange(DataSnapshot snapshot) {
+        InitializeFriendList(rootView);
         for(String profileId : friendProfileIds.keySet()) {
             UserProfile friendProfile = snapshot.child(profileId).getValue(UserProfile.class);
 
@@ -136,6 +166,9 @@ public class StatusFragment extends Fragment {
                     iv_friendImageView,
                     friendCurrentStatus
             );
+
+            String userProfilePic = friendProfile.getUserImgLink() != null ? friendProfile.getUserImgLink() : UserProfile.DEFAULT_PROFILE_PIC;
+            UserProfile.setImageToImageView(getContext(), iv_friendImageView, userProfilePic);
 
             Log.d("DEBUG_BORDERCHANGE", friendProfile.getName() + ": " + friendProfile.getStatus() + "||" + friendCurrentStatus );
         }

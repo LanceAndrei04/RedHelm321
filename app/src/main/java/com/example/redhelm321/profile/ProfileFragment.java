@@ -1,7 +1,8 @@
-package com.example.redhelm321;
+package com.example.redhelm321.profile;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -24,14 +25,16 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.redhelm321.R;
+import com.example.redhelm321.SplashActivity;
 import com.example.redhelm321.database.DatabaseCallback;
 import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.database.ReadCallback;
-import com.example.redhelm321.profile.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -41,6 +44,8 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -56,6 +61,7 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
     private Button saveButton, logoutButton, viewContactsBtn, shareProfileBtn;
     private LinearLayout profileForm, contactListLayout;
     private ArrayList<String> contacts;
+    private ArrayList<UserProfile> contactProfiles;
     private ArrayAdapter<String> contactAdapter;
 
     FirebaseAuth mAuth;
@@ -71,25 +77,11 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         loadProfileFromDatabase();
 
         contacts = new ArrayList<>();
+        contactProfiles = new ArrayList<>();
         contactAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, contacts);
         contactListView.setAdapter(contactAdapter);
 
         return view;
-    }
-
-    public void loadProfileFromDatabase() {
-        userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
-        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
-            @Override
-            public void onSuccess(UserProfile data) {
-                updateProfile(data);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Log.d("DEBUG_UPDATE_PROFILE", "FAILED ANG UPDATE PROFILE" + e.getMessage());
-            }
-        });
     }
 
     private void InitializeComponent(View view) {
@@ -136,10 +128,10 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         setupBirthdayPicker(birthdayEditText);
 
         // Save button click listener
-        saveButton.setOnClickListener(v -> saveProfileToDatabase());
+        saveButton.setOnClickListener(v -> updateProfileInDatabase());
         logoutButton.setOnClickListener(v -> {
             mAuth.signOut();
-            getActivity().finish();
+            restartApp(getContext());
         });
 
         viewContactsBtn.setOnClickListener(v -> {
@@ -156,25 +148,101 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         });
     }
 
+    public void loadProfileFromDatabase() {
+        userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
+        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+            @Override
+            public void onSuccess(UserProfile data) {
+                updateProfile(data);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.d("DEBUG_UPDATE_PROFILE", "FAILED ANG UPDATE PROFILE" + e.getMessage());
+            }
+        });
+    }
 
     private void addContactToList() {
         String newContact = contactInputEditText.getText().toString().trim(); // Get text from EditText
         if (!newContact.isEmpty()) {
-            contacts.add(newContact); // Add new contact to list
-            contactAdapter.notifyDataSetChanged(); // Refresh ListView
-            contactInputEditText.setText(""); // Clear the EditText
+            String newFriendProfilePath = dbManager.getUserProfilePath(newContact);
+            dbManager.readData(newFriendProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                @Override
+                public void onSuccess(UserProfile data) {
+                    UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), newContact);
+                    contacts.add(data.getName()); // Add new contact to list
+                    contactAdapter.notifyDataSetChanged(); // Refresh ListView
+                    contactInputEditText.setText(""); // Clear the EditText
+                    Toast.makeText(getContext(), data.getName() + " was added to contacts", Toast.LENGTH_SHORT).show();
+
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(getContext(), "No such user exist", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
         } else {
-            Toast.makeText(getContext(), "Please enter a valid contact!", Toast.LENGTH_SHORT).show();
+            ScanOptions options = new ScanOptions();
+            options.setPrompt("Volume up to flash on");
+            options.setBeepEnabled(true);
+            options.setOrientationLocked(true);
+            options.setCaptureActivity(CaptureAct.class);
+            barLaucher.launch(options);
         }
     }
 
+    ActivityResultLauncher<ScanOptions> barLaucher = registerForActivityResult(new ScanContract(), result->
+    {
+        try {
+            if(result.getContents() !=null)
+            {
+                String friendProfilePath = dbManager.getUserProfilePath(result.getContents());
+                dbManager.readData(friendProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                    @Override
+                    public void onSuccess(UserProfile data) {
+                        Toast.makeText(getContext(), "You are now friends with " + data.getName(), Toast.LENGTH_SHORT).show();
+
+                        String userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
+                        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                            @Override
+                            public void onSuccess(UserProfile data) {
+                                UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), result.getContents());
+                                updateContactsUI(data);
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Toast.makeText(getContext(), "No such user exist", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Log.d("DEBUG_QRSCAN", e.getMessage());
+        }
+    });
+
     private void change_linear_layout() {
         if (profileForm.getVisibility() == View.VISIBLE) {
+            contactAdapter.notifyDataSetChanged();
             viewContactsBtn.setTextColor(getResources().getColor(R.color.white));
             viewContactsBtn.setBackgroundTintList(getResources().getColorStateList(R.color.red_700));
 
             profileForm.setVisibility(View.GONE);
             contactListLayout.setVisibility(View.VISIBLE);
+
+
+
         } else {
             viewContactsBtn.setTextColor(getResources().getColor(R.color.red_primary));
             viewContactsBtn.setBackgroundTintList(getResources().getColorStateList(R.color.white));
@@ -184,37 +252,66 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         }
     }
 
-    private void saveProfileToDatabase() {
+    private void updateProfileInDatabase() {
+        // Fetch user-entered values
         String name = et_nameEditText.getText().toString();
         String contact = et_contactNumberEditText.getText().toString();
         String birthday = et_birthdayEditText.getText().toString();
         String bloodType = et_bloodTypeEditText.getText().toString();
         String address = et_addressEditText.getText().toString();
 
-        UserProfile newProfile = new UserProfile.Builder()
-                .setName(name)
-                .setPhoneNumber(contact)
-                .setBirthDate(birthday)
-                .setBloodType(bloodType)
-                .setAddress(address)
-                .build();
+        // Get the user profile path
+        String userProfilePath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid());
 
-        dbManager.saveData(userProfilePath, newProfile, new DatabaseCallback() {
+        // Read existing profile data
+        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
             @Override
-            public void onSuccess() {
-                new Handler().post(new Runnable() {
+            public void onSuccess(UserProfile existingProfile) {
+                if (existingProfile == null) {
+                    Log.e("UPDATE_PROFILE", "Existing profile is null. Cannot update.");
+                    return;
+                }
+
+                // Update only the fields with new data
+                if (!name.isEmpty()) existingProfile.setName(name);
+                if (!contact.isEmpty()) existingProfile.setPhoneNumber(contact);
+                if (!birthday.isEmpty()) existingProfile.setBirthDate(birthday);
+                if (!bloodType.isEmpty()) existingProfile.setBloodType(bloodType);
+                if (!address.isEmpty()) existingProfile.setAddress(address);
+
+                // Set the profile image if provided
+                if (mAuth.getCurrentUser().getPhotoUrl() != null) {
+                    existingProfile.setUserImgLink(mAuth.getCurrentUser().getPhotoUrl().toString());
+                }
+
+                // Save the updated profile back to the database
+                dbManager.saveData(userProfilePath, existingProfile, new DatabaseCallback() {
                     @Override
-                    public void run() {
-                        Toast.makeText(getContext(), "Profile updated!", Toast.LENGTH_SHORT).show();
+                    public void onSuccess() {
+                        new Handler().post(() ->
+                                Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e("UPDATE_PROFILE", "Failed to save updated profile: " + e.getMessage(), e);
                     }
                 });
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                Log.e("UPDATE_PROFILE", "Failed to read existing profile: " + e.getMessage(), e);
             }
         });
+    }
+
+    public void restartApp(Context context) {
+        Intent intent = new Intent(context, SplashActivity.class); // Main activity of your app
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+        System.exit(0); // Forcefully stop the app
     }
 
     private void setupBirthdayPicker(EditText birthdayEditText) {
@@ -238,7 +335,7 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
     private void updateProfile(UserProfile profile) {
 
         try {
-            Log.d("DEBUG_UPDATE_PROFILE", "NATAWAG ANG UPDATE PROFILE");
+            Log.d("DEBUG_UPDATE_PROFILE", "NATAWAG ANG UPDATE PROFILE\n" + profile.getFriendIDList());
             if(profile == null) {
                 Log.d("DEBUG_UPDATE_PROFILE", "UserProfile is null");
                 return;
@@ -248,6 +345,8 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
                 Log.d("DEBUG_UPDATE_PROFILE", "UserProfile is null " + profile.getUserImgLink());
                 UserProfile.setImageToImageView(getContext(), iv_profileImageView, profile.getUserImgLink());
             }
+
+            updateContactsUI(profile);
 
             nameTextView.setText(profile.getName());
             emailTextView.setText(mAuth.getCurrentUser().getEmail());
@@ -262,6 +361,42 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
             Log.d("DEBUG_UPDATE_PROFILE", "FAILED ANG UPDATE PROFILE" + e.getMessage());
         }
 
+    }
+
+    private void updateContactsUI(UserProfile profile) {
+        ArrayList<String> friendIds = profile.getFriendIDList(); // Get all friend IDs
+        if (friendIds == null || friendIds.isEmpty()) {
+            Log.d("DEBUG_CONTACTS", "No friends found.");
+            return;
+        }
+
+        contacts.clear();
+
+        for (String friendId : friendIds) {
+            if(friendId.isEmpty()) continue;
+            String userProfilePath = dbManager.getUserProfilePath(friendId);
+
+            dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                @Override
+                public void onSuccess(UserProfile data) {
+                    contacts.add(data.getName());
+                    Log.d("DEBUG_CONTACTS", "Friend profile is null for ID: " + friendId);
+                    contactAdapter.notifyDataSetChanged(); // Refresh ListView once
+
+
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e("DEBUG_CONTACTS", "Failed to fetch profile for friend ID: " + friendId, e);
+
+                    // Handle completion even on failure
+                    if (contacts.size() + 1 == friendIds.size()) {
+                        contactAdapter.notifyDataSetChanged(); // Refresh ListView
+                    }
+                }
+            });
+        }
     }
 
     private void showProfileShareDialog() {
@@ -303,19 +438,23 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
                 popupContactText.setText(profile.getPhoneNumber());
                 popupBirthdayText.setText(profile.getBirthDate());
 
-                String shareText  = String.format(
-                                "Profile Information:\n\n" +
-                                "Name: %s\n" +
-                                "Email: %s\n" +
-                                "Address: %s\n" +
-                                "Contact: %s\n" +
-                                "Birthday: %s",
-                        profile.getName(),
-                        profile.getEmail(),
-                        profile.getAddress(),
-                        profile.getPhoneNumber(),
-                        profile.getBirthDate()
-                );
+//                String shareText  = String.format(
+//                                "ID: %s\n" +
+//                                "Profile Information:\n\n" +
+//                                "Name: %s\n" +
+//                                "Email: %s\n" +
+//                                "Address: %s\n" +
+//                                "Contact: %s\n" +
+//                                "Birthday: %s",
+//                        mAuth.getCurrentUser().getUid(),
+//                        profile.getName(),
+//                        profile.getEmail(),
+//                        profile.getAddress(),
+//                        profile.getPhoneNumber(),
+//                        profile.getBirthDate()
+//                );
+
+                final String shareText = mAuth.getCurrentUser().getUid();
 
                 MultiFormatWriter writer = new MultiFormatWriter();
                 try {

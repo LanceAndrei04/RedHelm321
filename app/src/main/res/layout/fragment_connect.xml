@@ -142,7 +142,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Scan"
+                android:text="Cancel"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -176,6 +176,16 @@
             app:layout_constraintBottom_toBottomOf="parent">
 
             <ImageButton
+                android:id="@+id/btnDisconnect"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Scan QR Code"
+                android:src="@drawable/ic_disconnect"
+                app:tint="@color/dark_gray" />
+
+            <ImageButton
                 android:id="@+id/btnScan"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -184,6 +194,9 @@
                 android:contentDescription="Scan QR Code"
                 android:src="@drawable/ic_scan_nearby"
                 app:tint="@color/dark_gray" />
+
+
+
 
             <EditText
                 android:id="@+id/messageInput"

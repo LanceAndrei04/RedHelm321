@@ -3,6 +3,7 @@ package com.example.redhelm321.authentication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -95,6 +96,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient.signOut();
 
         mAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
@@ -155,11 +157,14 @@ public class LoginActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(Exception e) {
+                                ArrayList<String> initFriends = new ArrayList<>();
+                                initFriends.add("");
                                 UserProfile newUserProfile = new UserProfile.Builder()
                                         .setName(user.getDisplayName())
                                         .setPhoneNumber(user.getPhoneNumber())
                                         .setEmail(user.getEmail())
                                         .setStatus("Safe")
+                                        .setFriendIDList(initFriends)
                                         .setUserImgLink(String.valueOf(user.getPhotoUrl()))
                                         .build();
 
@@ -191,6 +196,8 @@ public class LoginActivity extends AppCompatActivity {
 
     }
     private void openMainScreen() {
+        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(mainIntent);
         finish();
     }
 
@@ -199,68 +206,91 @@ public class LoginActivity extends AppCompatActivity {
         activityResultLauncher.launch(openGoogleSignIn);
     }
     private void btn_login_button_OnClick(View v) {
-        final String email = et_email_input.getText().toString().trim();
-        final  String password = et_password_input.getText().toString().trim();
+        try {
+            final String email = et_email_input.getText().toString().trim() != null ? et_email_input.getText().toString().trim() : "";;
+            final  String password = et_password_input.getText().toString().trim() != null ? et_password_input.getText().toString().trim() : "";
 
-        FormValidation.FormValidationResult loginFormResult = FormValidation.isLoginFormValid(
-                email,
-                password
-        );
 
-        String message = "";
+            FormValidation.FormValidationResult loginFormResult = FormValidation.isLoginFormValid(
+                    email,
+                    password
+            );
 
-        switch (loginFormResult) {
-            case INVALID_EMAIL:
-                message = FormValidation.WarningMessage.INVALID_EMAIL_WARNING.getMessage();
-                break;
-            case INVALID_PASSWORD:
-                message = FormValidation.WarningMessage.INVALID_PASSWORD_WARNING.getMessage();
-                break;
-            case INPUT_NULL:
-                message = FormValidation.WarningMessage.INPUT_NULL_WARNING.getMessage();
-                break;
-        }
+            String message = "";
 
-        if(!TextUtils.isEmpty(message)) {
-            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT)
-                    .show();
-        }
+            switch (loginFormResult) {
+                case INVALID_EMAIL:
+                    message = FormValidation.WarningMessage.INVALID_EMAIL_WARNING.getMessage();
+                    break;
+                case INVALID_PASSWORD:
+                    message = FormValidation.WarningMessage.INVALID_PASSWORD_WARNING.getMessage();
+                    break;
+                case INPUT_NULL:
+                    message = FormValidation.WarningMessage.INPUT_NULL_WARNING.getMessage();
+                    break;
+            }
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
+            if(!TextUtils.isEmpty(message)) {
+                Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT)
+                        .show();
+            }
 
-                            UserProfile newUserProfile = new UserProfile.Builder()
-                                    .setName(user.getDisplayName())
-                                    .setPhoneNumber(user.getPhoneNumber())
-                                    .setEmail(user.getEmail())
-                                    .setStatus("Safe")
-                                    .setUserImgLink(user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : UserProfile.DEFAULT_PROFILE_PIC)
-                                    .build();
+            if(email.isEmpty() || password.isEmpty()) return;
 
-                            dbManager = DatabaseManager.getInstance(user.getUid());
-                            userProfilePath = dbManager.getUserProfilePath(user.getUid());
-                            dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    openMainScreen();
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            try {
+                                if (task.isSuccessful()) {
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    dbManager = DatabaseManager.getInstance(user.getUid());
+                                    userProfilePath = dbManager.getUserProfilePath(user.getUid());
+                                    dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+                                        @Override
+                                        public void onSuccess(UserProfile data) {
+                                            openMainScreen();
+                                        }
+
+                                        @Override
+                                        public void onFailure(Exception e) {
+                                            ArrayList<String> initFriends = new ArrayList<>();
+                                            initFriends.add("");
+                                            UserProfile newUserProfile = new UserProfile.Builder()
+                                                    .setName(user.getDisplayName())
+                                                    .setPhoneNumber(user.getPhoneNumber())
+                                                    .setEmail(user.getEmail())
+                                                    .setStatus("Safe")
+                                                    .setFriendIDList(initFriends)
+                                                    .setUserImgLink(String.valueOf(user.getPhotoUrl() != null ? user.getPhotoUrl() : UserProfile.DEFAULT_PROFILE_PIC))
+                                                    .build();
+
+                                            dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    openMainScreen();
+                                                }
+
+                                                @Override
+                                                public void onFailure(Exception e) {
+
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
                                 }
-
-                                @Override
-                                public void onFailure(Exception e) {
-
-                                }
-                            });
-                            openMainScreen();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            } catch (Exception e) {
+                                Log.e("DEBUG_LOGIN", e.getMessage());
+                            }
                         }
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            Log.e("DEBUG_LOGIN", e.getMessage());
+        }
     }
 
 
