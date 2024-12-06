@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/hotline_gradient_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,12 +11,13 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="8dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/red_secondary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -24,38 +26,41 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:text="Emergency Hotlines"
-                    android:textColor="@color/black"
+                    android:textAlignment="center"
+                    android:textColor="@android:color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_marginTop="8dp"
-                    android:text="Quick access to emergency services"
-                    android:textColor="@android:color/darker_gray" />
+                    android:text="Quick access to emergency contact numbers"
+                    android:textAlignment="center"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="16sp" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/hotlineRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp" />
+            android:clipToPadding="false"
+            android:paddingBottom="80dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/addHotlineFab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="end|bottom"
             android:layout_margin="16dp"
             android:contentDescription="Add new hotline"
-            android:src="@android:drawable/ic_input_add" />
-
+            android:src="@android:drawable/ic_input_add"
+            app:backgroundTint="@color/red_secondary"
+            app:tint="@android:color/white" />
     </LinearLayout>
 </ScrollView>
