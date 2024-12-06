@@ -2,9 +2,13 @@ package com.example.redhelm321.profile;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.example.redhelm321.database.DatabaseCallback;
+import com.example.redhelm321.database.DatabaseManager;
+import com.example.redhelm321.database.ReadCallback;
 
 import java.util.ArrayList;
 
@@ -58,6 +62,73 @@ public class UserProfile {
         Glide.with(context)
                 .load(userImgLink)
                 .into(imageView); // Target ImageView
+    }
+
+    public static void addUserToFriends(DatabaseManager dbManager, String userId, String friendId) {
+        Log.d("DEBUG_USERFRIENDS", "Friend ID: " + friendId);
+
+        String userFriendsPath = "profiles/" + userId + "/friendIDList";
+
+        dbManager.readData(userFriendsPath, Object.class, new ReadCallback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                // Ensure the data is cast to ArrayList<String> if not null
+                ArrayList<String> friends = (data instanceof ArrayList) ? (ArrayList<String>) data : new ArrayList<>();
+
+                // Avoid duplicates
+                if (!friends.contains(friendId)) {
+                    friends.add(friendId);
+
+                    // Save updated friend list
+                    dbManager.saveData(userFriendsPath, friends, new DatabaseCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("DEBUG_USERFRIENDS", "Friend added successfully.");
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("DEBUG_USERFRIENDS", "Failed to save friend: " + e.getMessage(), e);
+                        }
+                    });
+
+
+                    addUserToFriends(dbManager, friendId, userId);
+                } else {
+                    Log.d("DEBUG_USERFRIENDS", "Friend ID already exists in the list.");
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("DEBUG_USERFRIENDS", "Failed to read friends list: " + e.getMessage(), e);
+            }
+        });
+    }
+
+    public static void getUserFriends(DatabaseManager dbManager, String userId, ReadCallback<ArrayList<String>> callback) {
+        Log.d("DEBUG_USERFRIENDS", "Fetching friends for User ID: " + userId);
+
+        String userFriendsPath = "profiles/" + userId + "/friendIDList";
+
+        dbManager.readData(userFriendsPath, Object.class, new ReadCallback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                // Ensure the data is cast to ArrayList<String> if not null
+                ArrayList<String> friends = (data instanceof ArrayList) ? (ArrayList<String>) data : new ArrayList<>();
+
+                // Pass the friends list to the provided callback
+                callback.onSuccess(friends);
+                Log.d("DEBUG_USERFRIENDS", "Friends list retrieved successfully.");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Pass the failure to the provided callback
+                callback.onFailure(e);
+                Log.e("DEBUG_USERFRIENDS", "Failed to fetch friends list: " + e.getMessage(), e);
+            }
+        });
     }
 
     public String getReport() {

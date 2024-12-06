@@ -35,6 +35,7 @@ import com.example.redhelm321.adapters.MessageAdapter;
 import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.models.Message;
 import com.example.redhelm321.models.RippleView;
+import com.example.redhelm321.profile.UserProfile;
 import com.example.redhelm321.utils.PermissionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -62,7 +63,7 @@ public class ConnectNearbyFragment extends Fragment {
 
     private RecyclerView chatRecyclerView;
     private EditText messageInput;
-    private ImageButton btnSend, btnScan;
+    private ImageButton btnSend, btnAddFriend;
     private MessageAdapter messageAdapter;
     private boolean isDetecting = false;
 
@@ -203,7 +204,18 @@ public class ConnectNearbyFragment extends Fragment {
     }
 
     private void updateUI_OnMessageReceive(ChatMessage receivedMessage) {
+
         if (receivedMessage != null) {
+
+            if(receivedMessage.getType().equals(ChatMessage.TYPE_COMMAND_FRIEND_REQUEST)) {
+                UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), receivedMessage.getSender());
+
+//                Message notification = new Message(receivedMessage.getMessage(), false);
+//                notification.setNotification(true);
+//                messageAdapter.addMessage(notification);
+                return;
+            }
+
             // Create and add the message
             Message message = new Message(receivedMessage.getMessage(), false);
             messageAdapter.addMessage(message);
@@ -214,6 +226,13 @@ public class ConnectNearbyFragment extends Fragment {
     private void updateUI_OnMessageSend(ChatMessage sentMessage) {
         if (sentMessage != null) {
             // Create and add the message
+            if(!sentMessage.getType().equals(ChatMessage.TYPE_MESSAGE)) {
+                Message notification = new Message("Friend Request Sent", false);
+                notification.setNotification(true);
+                messageAdapter.addMessage(notification);
+                return;
+            }
+
             Message message = new Message(sentMessage.getMessage(), true);
             messageAdapter.addMessage(message);
 
@@ -271,7 +290,7 @@ public class ConnectNearbyFragment extends Fragment {
         chatRecyclerView = rootView.findViewById(R.id.chatRecyclerView);
         messageInput = rootView.findViewById(R.id.messageInput);
         btnSend = rootView.findViewById(R.id.btnSend);
-        btnScan = rootView.findViewById(R.id.btnScan);
+        btnAddFriend = rootView.findViewById(R.id.btnScan);
 
         // Setup RecyclerView
         messageAdapter = new MessageAdapter();
@@ -302,18 +321,36 @@ public class ConnectNearbyFragment extends Fragment {
             }
         });
 
-        btnScan.setOnClickListener(new View.OnClickListener() {
+        btnAddFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Message notification = new Message("Scanning Nearby Devices", false);
-                notification.setNotification(true);
-                messageAdapter.addMessage(notification);
+                btnAddFriend_OnClick();
             }
         });
     }
 
+    private void btnAddFriend_OnClick() {
+        Toast.makeText(getContext(), "ADD FRIEND", Toast.LENGTH_SHORT).show();
+        String message = "Friend Request";
+        ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), message)
+                .setType(ChatMessage.TYPE_COMMAND_FRIEND_REQUEST)
+                .build();
 
+        updateUI_OnMessageSend(chatMessage);
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                if(isHost) {
+                    serverClass.broadcastMessage(chatMessage);
+                }
+                else {
+                    clientClass.sendMessage(chatMessage);
+                }
+            }
+        });
+    }
 
     @SuppressLint("MissingPermission")
     private void lv_discoveredDevices_OnItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -398,10 +435,17 @@ public class ConnectNearbyFragment extends Fragment {
     private void scan_nearby_people_OnClick() {
         if (isDetecting) {
             rippleView.stopRippleEffect();
-            scan_nearby_people.setVisibility(View.GONE);
-            textViewDescription.setVisibility(View.GONE);
-            constraintLayoutTitle.setVisibility(View.GONE);
-            cardViewAvailableDevices.setVisibility(View.VISIBLE);
+            wifiP2pManager.stopPeerDiscovery(wifiP2pChannel, new WifiP2pManager.ActionListener() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onFailure(int i) {
+
+                }
+            });
         } else {
             rippleView.startRippleEffect(scan_nearby_people.getWidth());
 

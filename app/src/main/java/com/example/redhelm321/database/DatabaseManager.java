@@ -6,6 +6,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 
+import java.util.ArrayList;
+
 public class DatabaseManager {
     private static DatabaseManager instance;
     private final DatabaseReference databaseReference;
@@ -59,4 +61,6 @@ public class DatabaseManager {
             }
         });
     }
+
+
 }

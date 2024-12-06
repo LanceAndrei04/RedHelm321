@@ -36,8 +36,10 @@ public class Client extends Thread {
             while (true) {
                 String sender = inputStream.readUTF();
                 String message = inputStream.readUTF();
+                String type = inputStream.readUTF();
 
                 ChatMessage chatMessage = new ChatMessage.Builder(sender, message)
+                        .setType(type)
                         .build();
 
                 handler.post(() -> {
@@ -54,6 +56,7 @@ public class Client extends Thread {
             try {
                 outputStream.writeUTF(message.getSender());
                 outputStream.writeUTF(message.getMessage());
+                outputStream.writeUTF(message.getType());
                 outputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();

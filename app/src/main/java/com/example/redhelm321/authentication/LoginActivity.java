@@ -95,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient.signOut();
 
         mAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
@@ -155,11 +156,14 @@ public class LoginActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(Exception e) {
+                                ArrayList<String> initFriends = new ArrayList<>();
+                                initFriends.add("");
                                 UserProfile newUserProfile = new UserProfile.Builder()
                                         .setName(user.getDisplayName())
                                         .setPhoneNumber(user.getPhoneNumber())
                                         .setEmail(user.getEmail())
                                         .setStatus("Safe")
+                                        .setFriendIDList(initFriends)
                                         .setUserImgLink(String.valueOf(user.getPhotoUrl()))
                                         .build();
 
@@ -233,28 +237,39 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            UserProfile newUserProfile = new UserProfile.Builder()
-                                    .setName(user.getDisplayName())
-                                    .setPhoneNumber(user.getPhoneNumber())
-                                    .setEmail(user.getEmail())
-                                    .setStatus("Safe")
-                                    .setUserImgLink(user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : UserProfile.DEFAULT_PROFILE_PIC)
-                                    .build();
-
-                            dbManager = DatabaseManager.getInstance(user.getUid());
-                            userProfilePath = dbManager.getUserProfilePath(user.getUid());
-                            dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
+                            dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
                                 @Override
-                                public void onSuccess() {
+                                public void onSuccess(UserProfile data) {
                                     openMainScreen();
                                 }
 
                                 @Override
                                 public void onFailure(Exception e) {
+                                    ArrayList<String> initFriends = new ArrayList<>();
+                                    initFriends.add("");
+                                    UserProfile newUserProfile = new UserProfile.Builder()
+                                            .setName(user.getDisplayName())
+                                            .setPhoneNumber(user.getPhoneNumber())
+                                            .setEmail(user.getEmail())
+                                            .setStatus("Safe")
+                                            .setFriendIDList(initFriends)
+                                            .setUserImgLink(String.valueOf(user.getPhotoUrl()))
+                                            .build();
 
+                                    dbManager.saveData(userProfilePath, newUserProfile, new DatabaseCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            openMainScreen();
+                                        }
+
+                                        @Override
+                                        public void onFailure(Exception e) {
+
+                                        }
+                                    });
                                 }
                             });
-                            openMainScreen();
+
                         } else {
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
