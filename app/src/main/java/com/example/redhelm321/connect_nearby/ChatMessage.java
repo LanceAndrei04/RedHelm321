@@ -3,6 +3,7 @@ import java.io.Serializable;
 
 public class ChatMessage implements Serializable {
     public final static String TYPE_COMMAND_FRIEND_REQUEST = "Command_FRIEND_REQUEST";
+    public final static String TYPE_COMMAND_DISCONNECT = "Command_DISCONNECT";
     public final static String TYPE_MESSAGE = "MESSAGE";
 
     private String sender;

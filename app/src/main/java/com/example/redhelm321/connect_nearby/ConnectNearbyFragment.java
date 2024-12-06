@@ -1,8 +1,10 @@
 package com.example.redhelm321.connect_nearby;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -31,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.redhelm321.R;
+import com.example.redhelm321.SplashActivity;
 import com.example.redhelm321.adapters.MessageAdapter;
 import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.models.Message;
@@ -63,7 +66,7 @@ public class ConnectNearbyFragment extends Fragment {
 
     private RecyclerView chatRecyclerView;
     private EditText messageInput;
-    private ImageButton btnSend, btnAddFriend;
+    private ImageButton btnSend, btnAddFriend, btnDisconnect;
     private MessageAdapter messageAdapter;
     private boolean isDetecting = false;
 
@@ -207,12 +210,24 @@ public class ConnectNearbyFragment extends Fragment {
 
         if (receivedMessage != null) {
 
+            if(receivedMessage.getType().equals(ChatMessage.TYPE_COMMAND_DISCONNECT)) {
+
+                Toast.makeText(getContext(), "DISC", Toast.LENGTH_SHORT).show();
+                if(isHost) {
+                    disconnectWifiP2p();
+                }
+                else {
+                    restartApp(getContext());
+                }
+                return;
+            }
+
             if(receivedMessage.getType().equals(ChatMessage.TYPE_COMMAND_FRIEND_REQUEST)) {
                 UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), receivedMessage.getSender());
 
-//                Message notification = new Message(receivedMessage.getMessage(), false);
-//                notification.setNotification(true);
-//                messageAdapter.addMessage(notification);
+                Message notification = new Message(receivedMessage.getMessage(), false);
+                notification.setNotification(true);
+                messageAdapter.addMessage(notification);
                 return;
             }
 
@@ -243,8 +258,6 @@ public class ConnectNearbyFragment extends Fragment {
     }
 
     private void updateUI_OnConnect(String role) {
-        Toast.makeText(getContext(), "UI UPDATE", Toast.LENGTH_SHORT).show();
-
         cardViewAvailableDevices.setVisibility(View.GONE);
         chatConstraintLayout.setVisibility(View.VISIBLE);
 
@@ -291,6 +304,8 @@ public class ConnectNearbyFragment extends Fragment {
         messageInput = rootView.findViewById(R.id.messageInput);
         btnSend = rootView.findViewById(R.id.btnSend);
         btnAddFriend = rootView.findViewById(R.id.btnScan);
+        btnDisconnect = rootView.findViewById(R.id.btnDisconnect);
+        btnDisconnect.setOnClickListener(v -> btnDisconnect_OnClick(v));
 
         // Setup RecyclerView
         messageAdapter = new MessageAdapter();
@@ -327,6 +342,77 @@ public class ConnectNearbyFragment extends Fragment {
                 btnAddFriend_OnClick();
             }
         });
+    }
+
+    private void disconnectWifiP2p() {
+        wifiP2pManager.stopPeerDiscovery(wifiP2pChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(getContext(), "Stopped Discover", Toast.LENGTH_SHORT).show();
+
+                wifiP2pManager.removeGroup(wifiP2pChannel, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        restartApp(getContext());
+                    }
+
+                    @Override
+                    public void onFailure(int i) {
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onFailure(int i) {
+
+            }
+        });
+
+
+    }
+
+    public void restartApp(Context context) {
+        Intent intent = new Intent(context, SplashActivity.class); // Main activity of your app
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+        System.exit(0); // Forcefully stop the app
+    }
+
+    private void btnDisconnect_OnClick(View v) {
+        if(isHost) {
+            disconnectWifiP2p();
+            ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), ChatMessage.TYPE_COMMAND_DISCONNECT)
+                    .setType(ChatMessage.TYPE_COMMAND_DISCONNECT)
+                    .build();
+
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    serverClass.broadcastMessage(chatMessage);
+                }
+            });
+        }
+        else {
+            ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), ChatMessage.TYPE_COMMAND_DISCONNECT)
+                    .setType(ChatMessage.TYPE_COMMAND_DISCONNECT)
+                    .build();
+
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    clientClass.sendMessage(chatMessage);
+                    restartApp(getContext());
+                }
+            });
+
+
+        }
     }
 
     private void btnAddFriend_OnClick() {
@@ -399,6 +485,9 @@ public class ConnectNearbyFragment extends Fragment {
 
     private void sendMessage() {
         String message = messageInput.getText().toString();
+
+        if(message.isEmpty()) return;
+
         ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), message).build();
         updateUI_OnMessageSend(chatMessage);
         ExecutorService executorService = Executors.newSingleThreadExecutor();

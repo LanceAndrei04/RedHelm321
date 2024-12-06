@@ -79,9 +79,7 @@ public class Server extends Thread {
                             .build();
 
                     handler.post(() -> {
-                        Toast.makeText(sourceActivity, "TYPE: " + type , Toast.LENGTH_SHORT).show();
                         receiveMessageCallback.updateMessageUI(chatMessage);
-//                        broadcastMessage(chatMessage);
                     });
                 }
             } catch (IOException e) {

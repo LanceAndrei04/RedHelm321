@@ -2,6 +2,7 @@ package com.example.redhelm321.profile;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -30,6 +31,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.redhelm321.R;
+import com.example.redhelm321.SplashActivity;
 import com.example.redhelm321.database.DatabaseCallback;
 import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.database.ReadCallback;
@@ -129,7 +131,7 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         saveButton.setOnClickListener(v -> updateProfileInDatabase());
         logoutButton.setOnClickListener(v -> {
             mAuth.signOut();
-            getActivity().finish();
+            restartApp(getContext());
         });
 
         viewContactsBtn.setOnClickListener(v -> {
@@ -303,6 +305,13 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
                 Log.e("UPDATE_PROFILE", "Failed to read existing profile: " + e.getMessage(), e);
             }
         });
+    }
+
+    public void restartApp(Context context) {
+        Intent intent = new Intent(context, SplashActivity.class); // Main activity of your app
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+        System.exit(0); // Forcefully stop the app
     }
 
     private void setupBirthdayPicker(EditText birthdayEditText) {

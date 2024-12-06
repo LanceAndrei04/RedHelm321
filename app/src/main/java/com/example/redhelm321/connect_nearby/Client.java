@@ -12,7 +12,7 @@ import java.net.Socket;
 public class Client extends Thread {
 
     private final String serverIP;
-    private Socket clientSocket;
+    Socket clientSocket;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
     private final Handler handler;
