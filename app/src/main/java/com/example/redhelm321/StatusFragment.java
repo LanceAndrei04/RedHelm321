@@ -1,6 +1,7 @@
 package com.example.redhelm321;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -190,6 +191,19 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
             String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
             ShapeableImageView iv_friendImageView = Objects.requireNonNull(friendProfileIds.get(profileId));
 
+//            String userLatLngPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/LatLng";
+//            dbManager.readData(userLatLngPath, List.class, new ReadCallback<List>() {
+//                @Override
+//                public void onSuccess(List data) {
+//
+//                }
+//
+//                @Override
+//                public void onFailure(Exception e) {
+//
+//                }
+//            });
+
             setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate(), friendProfile.getReport(), friendProfile.getLocation());
 
             changeStatusBorder(
@@ -217,9 +231,9 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
                 
                 changeStatusBorder(profileImageView, currentStatus);
                 String latestTimeStatusUpdate = currentUserProfile.getLatestTimeStatusUpdate() != null ? currentUserProfile.getLatestTimeStatusUpdate() : "N/A";
-                setImageClickListener(profileImageView, 
-                    currentUserProfile.getName(), 
-                    currentStatus, 
+                setImageClickListener(profileImageView,
+                    currentUserProfile.getName(),
+                    currentStatus,
                     latestTimeStatusUpdate,
                     report,
                     currentUserProfile.getLocation());
@@ -246,6 +260,32 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
         reportInputLayout.setVisibility(View.GONE);
         sendReportButton.setVisibility(View.GONE);
 
+        getLatLngUser(userLocation -> {
+            // Use the userLocation here
+            // userLocation.latitude and userLocation.longitude are available
+            // For example:
+            double lat = userLocation.latitude;
+            double lng = userLocation.longitude;
+            Log.d("DEBUG_LOCATION", lat + "," + lng);
+
+
+            String userLatLngPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/LatLng";
+            List<Double> latLng = new ArrayList<>();
+            latLng.add(lat);
+            latLng.add(lng);
+            dbManager.saveData(userLatLngPath, latLng, new DatabaseCallback() {
+                @Override
+                public void onSuccess() {
+                    Log.d("DEBUG_LOCATION", lat + "," + lng);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.d("DEBUG_LOCATION", "error lat lng");
+                }
+            });
+        });
+
         String status = "Safe";
         Log.d("STATUS_DEBUG", "Marking as safe");
         updateLocation(status);
@@ -267,6 +307,24 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
                 Log.e("STATUS_DEBUG", "Failed to reload profile after marking safe", e);
             }
         });
+    }
+
+    public interface LocationCallback {
+        void onLocationReceived(LatLng location);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getLatLngUser(LocationCallback callback) {
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(requireActivity(), location -> {
+                    if (location != null) {
+                        LatLng userLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                        callback.onLocationReceived(userLocation);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Location", "Error getting location: " + e.getMessage());
+                });
     }
 
     private void needHelpButton_OnClick(View v) {
@@ -413,6 +471,7 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    @SuppressLint("MissingPermission")
     private void setImageClickListener(ImageView imageView, String name, String status, String lastUpdate, String report, String location) {
         imageView.setOnClickListener(v -> {
             View popupView = LayoutInflater.from(requireContext()).inflate(R.layout.popup_info, null);
@@ -455,6 +514,10 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
 
             popupWindow.setFocusable(true);
             popupWindow.showAtLocation(imageView, Gravity.CENTER, 0, 0);
+
+            LatLng userLocation = new LatLng(40.689247, -74.044502);;
+            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15)); // Zoom level can be adjusted
+            gMap.setMyLocationEnabled(true); // Enable the location layer
         });
     }
 
