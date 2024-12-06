@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -80,6 +81,8 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
 
     HashMap<String, ShapeableImageView> friendProfileIds;
 
+    MediaPlayer mediaPlayer;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_status, container, false);
@@ -88,7 +91,7 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
         InitializeComponent(rootView);
         loadProfileFromDatabase();
         checkLocationPermission();
-
+        mediaPlayer = MediaPlayer.create(getContext(), R.raw.danger_alarm);
         return rootView;
     }
 
@@ -191,18 +194,8 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
             String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
             ShapeableImageView iv_friendImageView = Objects.requireNonNull(friendProfileIds.get(profileId));
 
-//            String userLatLngPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/LatLng";
-//            dbManager.readData(userLatLngPath, List.class, new ReadCallback<List>() {
-//                @Override
-//                public void onSuccess(List data) {
-//
-//                }
-//
-//                @Override
-//                public void onFailure(Exception e) {
-//
-//                }
-//            });
+
+
 
             setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate(), friendProfile.getReport(), friendProfile.getLocation());
 
@@ -214,7 +207,26 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
             String userProfilePic = friendProfile.getUserImgLink() != null ? friendProfile.getUserImgLink() : UserProfile.DEFAULT_PROFILE_PIC;
             UserProfile.setImageToImageView(getContext(), iv_friendImageView, userProfilePic);
 
+            if(!friendCurrentStatus.equals("Safe")) {
+                playDangerSound();
+            }
+            else {
+                stopDangerSound();
+            }
+
             Log.d("DEBUG_BORDERCHANGE", friendProfile.getName() + ": " + friendProfile.getStatus() + "||" + friendCurrentStatus );
+        }
+    }
+
+    private void playDangerSound() {
+        if (!mediaPlayer.isPlaying()) {
+            mediaPlayer.start();
+        }
+    }
+
+    private void stopDangerSound() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
         }
     }
 
@@ -373,7 +385,10 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
                         requireContext().getTheme()
                 )
         );
+
     }
+
+
 
 
     private void updateUserStatusDB(String status) {
@@ -515,7 +530,7 @@ public class StatusFragment extends Fragment implements OnMapReadyCallback {
             popupWindow.setFocusable(true);
             popupWindow.showAtLocation(imageView, Gravity.CENTER, 0, 0);
 
-            LatLng userLocation = new LatLng(40.689247, -74.044502);;
+            LatLng userLocation = new LatLng(13.78, 121.06);;
             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15)); // Zoom level can be adjusted
             gMap.setMyLocationEnabled(true); // Enable the location layer
         });

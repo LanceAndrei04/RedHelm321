@@ -106,6 +106,79 @@ public class UserProfile {
         });
     }
 
+    public static void removeFriend(DatabaseManager dbManager, String userId, String friendId) {
+        Log.d("DEBUG_USERFRIENDS", "Removing Friend ID: " + friendId);
+
+        String userFriendsPath = "profiles/" + userId + "/friendIDList";
+
+        // Read the user's friend list
+        dbManager.readData(userFriendsPath, Object.class, new ReadCallback<Object>() {
+            @Override
+            public void onSuccess(Object data) {
+                // Ensure the data is cast to ArrayList<String> if not null
+                ArrayList<String> friends = (data instanceof ArrayList) ? (ArrayList<String>) data : new ArrayList<>();
+
+                // Remove the friend if they exist in the list
+                if (friends.contains(friendId)) {
+                    friends.remove(friendId);
+
+                    // Save updated friend list
+                    dbManager.saveData(userFriendsPath, friends, new DatabaseCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d("DEBUG_USERFRIENDS", "Friend removed successfully.");
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("DEBUG_USERFRIENDS", "Failed to remove friend: " + e.getMessage(), e);
+                        }
+                    });
+
+                    // Remove the reciprocal relationship
+                    String friendFriendsPath = "profiles/" + friendId + "/friendIDList";
+
+                    dbManager.readData(friendFriendsPath, Object.class, new ReadCallback<Object>() {
+                        @Override
+                        public void onSuccess(Object friendData) {
+                            ArrayList<String> friendFriends = (friendData instanceof ArrayList)
+                                    ? (ArrayList<String>) friendData
+                                    : new ArrayList<>();
+
+                            if (friendFriends.contains(userId)) {
+                                friendFriends.remove(userId);
+
+                                dbManager.saveData(friendFriendsPath, friendFriends, new DatabaseCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Log.d("DEBUG_USERFRIENDS", "Reciprocal removal successful.");
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.e("DEBUG_USERFRIENDS", "Failed to remove reciprocal friend: " + e.getMessage(), e);
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e("DEBUG_USERFRIENDS", "Failed to fetch friend's friend list: " + e.getMessage(), e);
+                        }
+                    });
+                } else {
+                    Log.d("DEBUG_USERFRIENDS", "Friend ID not found in the list.");
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("DEBUG_USERFRIENDS", "Failed to read friends list: " + e.getMessage(), e);
+            }
+        });
+    }
+
     public static void getUserFriends(DatabaseManager dbManager, String userId, ReadCallback<ArrayList<String>> callback) {
         Log.d("DEBUG_USERFRIENDS", "Fetching friends for User ID: " + userId);
 

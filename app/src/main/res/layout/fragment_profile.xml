@@ -41,6 +41,7 @@
                     android:adjustViewBounds="true" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:visibility="gone"
                     android:id="@+id/editImageButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -61,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:text="Red H. Elm"
                 android:textColor="#FFFFFF"
-                android:textSize="30sp"
+                android:textSize="18dp"
                 android:textStyle="bold" />
 
             <TextView

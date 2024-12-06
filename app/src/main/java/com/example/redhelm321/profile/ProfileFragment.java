@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -37,8 +38,13 @@ import com.example.redhelm321.database.DatabaseManager;
 import com.example.redhelm321.database.ReadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -60,11 +66,12 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
     private TextInputEditText et_nameEditText, et_emailEditText, et_contactNumberEditText, et_birthdayEditText, et_bloodTypeEditText, et_addressEditText;
     private Button saveButton, logoutButton, viewContactsBtn, shareProfileBtn;
     private LinearLayout profileForm, contactListLayout;
-    private ArrayList<String> contacts;
+    private ArrayList<String> contacts, contacIdList;
     private ArrayList<UserProfile> contactProfiles;
     private ArrayAdapter<String> contactAdapter;
 
     FirebaseAuth mAuth;
+    FirebaseDatabase firebaseDatabase;
     DatabaseManager dbManager;
     String userProfilePath;
 
@@ -76,12 +83,67 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         InitializeComponent(view);
         loadProfileFromDatabase();
 
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        firebaseDatabase.getReference().child("profiles").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    database_onDataChange(snapshot);
+                }
+                else {
+                    Log.d("DATABASE_CHANGE", "No snapshot available");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d("DATABASE_CHANGE", "No snapshot available");
+
+            }
+        });
+
+        contacIdList = new ArrayList<>();
         contacts = new ArrayList<>();
         contactProfiles = new ArrayList<>();
         contactAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, contacts);
         contactListView.setAdapter(contactAdapter);
 
         return view;
+    }
+
+    private void database_onDataChange(DataSnapshot snapshot) {
+        Log.d("DATABASE_CHANGE", "SNAPSHOT: " + snapshot);
+
+        UserProfile userProfile = snapshot.child(mAuth.getCurrentUser().getUid()).getValue(UserProfile.class);
+
+
+        ArrayList<String> friendIds = userProfile.getFriendIDList(); // Get all friend IDs
+        if (friendIds == null || friendIds.isEmpty()) {
+            Log.d("DEBUG_CONTACTS", "No friends found.");
+            return;
+        }
+
+        contacIdList.clear();
+        contactProfiles.clear();
+        contacts.clear();
+
+        for (String friendId : friendIds) {
+            if(friendId.isEmpty()) continue;
+
+            UserProfile data = snapshot.child(friendId).getValue(UserProfile.class);
+
+            contacIdList.add(friendId);
+            contactProfiles.add(data);
+            contacts.add(data.getName());
+            contactAdapter.notifyDataSetChanged(); // Refresh ListView once
+            Log.d("DEBUG_CONTACTS", "Friend profile is null for ID: " + friendId);
+
+        }
+
+
+        nameTextView.setText(userProfile.getName());
+
+
     }
 
     private void InitializeComponent(View view) {
@@ -120,6 +182,12 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
 
         //Initialize Add contact
         contactListView = view.findViewById(R.id.contactListView);
+        contactListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                contactListView_OnClick(adapterView, view, i, l);
+            }
+        });
         contactInputEditText = view.findViewById(R.id.contactInputEditText);
         addContactButton = view.findViewById(R.id.addContactButton);
         addContactButtonQR = view.findViewById(R.id.addContactButtonQR);
@@ -155,6 +223,12 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         shareProfileBtn.setOnClickListener(v -> {
             showProfileShareDialog();
         });
+    }
+
+    private void contactListView_OnClick(AdapterView<?> adapterView, View view, int i, long l) {
+        UserProfile.removeFriend(dbManager, mAuth.getCurrentUser().getUid(), contacIdList.get(i));
+        contacts.remove(i);
+        contactAdapter.notifyDataSetChanged();
     }
 
     private void addContactButtonQR(View v) {
@@ -222,7 +296,6 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
                             @Override
                             public void onSuccess(UserProfile data) {
                                 UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), result.getContents());
-                                updateContactsUI(data);
                             }
 
                             @Override
@@ -357,8 +430,6 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
                 UserProfile.setImageToImageView(getContext(), iv_profileImageView, profile.getUserImgLink());
             }
 
-            updateContactsUI(profile);
-
             nameTextView.setText(profile.getName());
             emailTextView.setText(mAuth.getCurrentUser().getEmail());
 
@@ -381,6 +452,8 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
             return;
         }
 
+        contacIdList.clear();
+        contactProfiles.clear();
         contacts.clear();
 
         for (String friendId : friendIds) {
@@ -390,6 +463,8 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
             dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
                 @Override
                 public void onSuccess(UserProfile data) {
+                    contacIdList.add(friendId);
+                    contactProfiles.add(data);
                     contacts.add(data.getName());
                     Log.d("DEBUG_CONTACTS", "Friend profile is null for ID: " + friendId);
                     contactAdapter.notifyDataSetChanged(); // Refresh ListView once
