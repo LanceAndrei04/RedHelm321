@@ -25,6 +25,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -129,7 +130,7 @@ public class StatusFragment extends Fragment {
             String friendCurrentStatus = friendProfile.getStatus() != null ? friendProfile.getStatus() : "Safe";;
             ShapeableImageView iv_friendImageView = Objects.requireNonNull(friendProfileIds.get(profileId));
 
-            setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate());
+            setImageClickListener(iv_friendImageView, friendProfile.getName(), friendCurrentStatus, friendProfile.getLatestTimeStatusUpdate(), friendProfile.getReport());
 
             changeStatusBorder(
                     iv_friendImageView,
@@ -148,9 +149,16 @@ public class StatusFragment extends Fragment {
                 currentUserProfile = data;
 
                 String currentStatus = currentUserProfile.getStatus() != null ? currentUserProfile.getStatus() : "Safe";
+                String report = currentUserProfile.getReport();
+                Log.d("PROFILE_DEBUG", "Status: " + currentStatus + ", Report: " + report);
+                
                 changeStatusBorder(profileImageView, currentStatus);
                 String latestTimeStatusUpdate = currentUserProfile.getLatestTimeStatusUpdate() != null ? currentUserProfile.getLatestTimeStatusUpdate() : "N/A";
-                setImageClickListener(profileImageView, currentUserProfile.getName(), currentStatus, latestTimeStatusUpdate);
+                setImageClickListener(profileImageView, 
+                    currentUserProfile.getName(), 
+                    currentStatus, 
+                    latestTimeStatusUpdate,
+                    report);
 
                 updateProfileUI(data);
             }
@@ -175,10 +183,25 @@ public class StatusFragment extends Fragment {
         sendReportButton.setVisibility(View.GONE);
 
         String status = "Safe";
+        Log.d("STATUS_DEBUG", "Marking as safe");
         updateUserStatusUpdtateTimeDB();
         updateUserStatusDB(status);
         updateUserReportDB("");
         changeStatusBorder(profileImageView, status);
+        
+        // Reload profile to update click listener
+        dbManager.readData(userProfilePath, UserProfile.class, new ReadCallback<UserProfile>() {
+            @Override
+            public void onSuccess(UserProfile data) {
+                Log.d("STATUS_DEBUG", "Profile reloaded after marking safe. Status: " + data.getStatus() + ", Report: " + data.getReport());
+                setImageClickListener(profileImageView, data.getName(), status, data.getLatestTimeStatusUpdate(), "");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("STATUS_DEBUG", "Failed to reload profile after marking safe", e);
+            }
+        });
     }
 
     private void needHelpButton_OnClick(View v) {
@@ -204,6 +227,7 @@ public class StatusFragment extends Fragment {
     private void sendReportButton_OnClick(View v) {
         String report = reportEditText.getText().toString().trim();
         if (!report.isEmpty()) {
+            Log.d("REPORT_DEBUG", "Sending report: " + report);
             reportInputLayout.setVisibility(View.GONE);
             sendReportButton.setVisibility(View.GONE);
 
@@ -236,7 +260,7 @@ public class StatusFragment extends Fragment {
                 dbManager.readData(dbManager.getUserProfilePath(currentUser.getUid()), UserProfile.class, new ReadCallback<UserProfile>() {
                     @Override
                     public void onSuccess(UserProfile data) {
-                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate());
+                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate(), data.getReport());
                     }
 
                     @Override
@@ -270,7 +294,6 @@ public class StatusFragment extends Fragment {
     private void updateUserStatusUpdtateTimeDB() {
         String userStatusPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/latestTimeStatusUpdate";
 
-
         LocalDateTime now = null;
         String formattedDate = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -296,22 +319,29 @@ public class StatusFragment extends Fragment {
         });
     }
     private void updateUserReportDB(String report) {
-        String userStatusPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/report";
-        dbManager.saveData(userStatusPath, report, new DatabaseCallback() {
+        Log.d("REPORT_DEBUG", "Updating report in DB: " + report);
+        String userReportPath = dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()) + "/report";
+        dbManager.saveData(userReportPath, report, new DatabaseCallback() {
             @Override
             public void onSuccess() {
+                Log.d("REPORT_DEBUG", "Report saved successfully");
+                dbManager.readData(dbManager.getUserProfilePath(mAuth.getCurrentUser().getUid()), UserProfile.class, new ReadCallback<UserProfile>() {
+                    @Override
+                    public void onSuccess(UserProfile data) {
+                        Log.d("REPORT_DEBUG", "Profile reloaded. Status: " + data.getStatus() + ", Report: " + data.getReport());
+                        setImageClickListener(profileImageView, data.getName(), data.getStatus(), data.getLatestTimeStatusUpdate(), data.getReport());
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e("REPORT_DEBUG", "Failed to reload profile", e);
+                    }
+                });
             }
 
             @Override
             public void onFailure(Exception e) {
-                new Handler().post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), "Failed to mark you safe",
-                                        Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
+                Log.e("REPORT_DEBUG", "Failed to save report", e);
             }
         });
     }
@@ -331,9 +361,22 @@ public class StatusFragment extends Fragment {
             statusTextView.setText("Status: " + status);
             lastUpdateTextView.setText("Last Update: " + lastUpdate);
 
+            Log.d("POPUP_DEBUG", "Status: " + status);
+            Log.d("POPUP_DEBUG", "Extra details length: " + extraDetails.length);
             if (extraDetails.length > 0) {
+                Log.d("POPUP_DEBUG", "Report content: " + extraDetails[0]);
+            }
+
+            // Only show report if status is not Safe and report exists
+            if (!status.equals("Safe") && extraDetails.length > 0 && extraDetails[0] != null && !extraDetails[0].isEmpty()) {
+                Log.d("POPUP_DEBUG", "Showing report: " + extraDetails[0]);
                 reportTextView.setText("Report: " + extraDetails[0]);
                 reportTextView.setVisibility(View.VISIBLE);
+            } else {
+                Log.d("POPUP_DEBUG", "Hiding report. Status safe: " + status.equals("Safe") 
+                    + ", Has extras: " + (extraDetails.length > 0)
+                    + ", Report empty: " + (extraDetails.length > 0 ? extraDetails[0].isEmpty() : "no report"));
+                reportTextView.setVisibility(View.GONE);
             }
 
             if (extraDetails.length > 1) {
