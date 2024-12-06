@@ -5,14 +5,16 @@ public class Message {
     private long timestamp;
     private boolean isSent;
     private boolean isNotification;
+    private String sender;
 
-    public Message(String text, boolean isSent) {
+    public Message(String text, boolean isSent, String sender) {
         this.text = text;
         this.timestamp = System.currentTimeMillis();
         this.isSent = isSent;
+        this.sender = sender;
     }
 
-    public boolean isNotification(){
+    public boolean isNotification() {
         return isNotification;
     }
 
@@ -30,5 +32,9 @@ public class Message {
 
     public boolean isSent() {
         return isSent;
+    }
+
+    public String getSender() {
+        return sender;
     }
 }

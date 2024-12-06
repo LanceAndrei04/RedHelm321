@@ -138,7 +138,7 @@
                 android:dividerHeight="1dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/scanButton"
+                android:id="@+id/cancel_discoverButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"

@@ -34,11 +34,12 @@ public class Client extends Thread {
             outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
             while (true) {
-                String sender = inputStream.readUTF();
+                String senderId = inputStream.readUTF();
+                String senderName = inputStream.readUTF();
                 String message = inputStream.readUTF();
                 String type = inputStream.readUTF();
 
-                ChatMessage chatMessage = new ChatMessage.Builder(sender, message)
+                ChatMessage chatMessage = new ChatMessage.Builder(senderId, senderName, message)
                         .setType(type)
                         .build();
 
@@ -54,7 +55,8 @@ public class Client extends Thread {
     public void sendMessage(ChatMessage message) {
         new Thread(() -> {
             try {
-                outputStream.writeUTF(message.getSender());
+                outputStream.writeUTF(message.getSenderId());
+                outputStream.writeUTF(message.getSenderName());
                 outputStream.writeUTF(message.getMessage());
                 outputStream.writeUTF(message.getType());
                 outputStream.flush();

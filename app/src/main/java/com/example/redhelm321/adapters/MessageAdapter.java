@@ -72,34 +72,39 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     class SentMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText;
+        TextView messageText, timeText, senderName;
 
         SentMessageHolder(View itemView) {
             super(itemView);
+            senderName = itemView.findViewById(R.id.senderName);
             messageText = itemView.findViewById(R.id.messageText);
             timeText = itemView.findViewById(R.id.timeText);
         }
 
         void bind(Message message) {
+            senderName.setText(message.getSender() + " • ");
             messageText.setText(message.getText());
             timeText.setText(timeFormat.format(new Date(message.getTimestamp())));
         }
     }
 
     class ReceivedMessageHolder extends RecyclerView.ViewHolder {
-        TextView messageText, timeText;
+        TextView messageText, timeText, senderName;
 
         ReceivedMessageHolder(View itemView) {
             super(itemView);
+            senderName = itemView.findViewById(R.id.senderName);
             messageText = itemView.findViewById(R.id.messageText);
             timeText = itemView.findViewById(R.id.timeText);
         }
 
         void bind(Message message) {
+            senderName.setText(" • " + message.getSender());
             messageText.setText(message.getText());
             timeText.setText(timeFormat.format(new Date(message.getTimestamp())));
         }
     }
+
 
     class NotificationMessageHolder extends RecyclerView.ViewHolder {
         TextView notificationText;

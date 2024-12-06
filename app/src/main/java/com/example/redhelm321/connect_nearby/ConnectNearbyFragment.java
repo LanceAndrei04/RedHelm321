@@ -212,7 +212,6 @@ public class ConnectNearbyFragment extends Fragment {
 
             if(receivedMessage.getType().equals(ChatMessage.TYPE_COMMAND_DISCONNECT)) {
 
-                Toast.makeText(getContext(), "DISC", Toast.LENGTH_SHORT).show();
                 if(isHost) {
                     disconnectWifiP2p();
                 }
@@ -223,16 +222,19 @@ public class ConnectNearbyFragment extends Fragment {
             }
 
             if(receivedMessage.getType().equals(ChatMessage.TYPE_COMMAND_FRIEND_REQUEST)) {
-                UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), receivedMessage.getSender());
+                UserProfile.addUserToFriends(dbManager, mAuth.getCurrentUser().getUid(), receivedMessage.getSenderId());
 
-                Message notification = new Message(receivedMessage.getMessage(), false);
+                Message notification = new Message("You are now friends!", false, "");
                 notification.setNotification(true);
                 messageAdapter.addMessage(notification);
                 return;
             }
 
+//            String userProfilePath = dbManager.getUserProfilePath(receivedMessage.)
+//            dbManager.readData();
+
             // Create and add the message
-            Message message = new Message(receivedMessage.getMessage(), false);
+            Message message = new Message(receivedMessage.getMessage(), false, receivedMessage.getSenderName());
             messageAdapter.addMessage(message);
             chatRecyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
         }
@@ -242,13 +244,13 @@ public class ConnectNearbyFragment extends Fragment {
         if (sentMessage != null) {
             // Create and add the message
             if(!sentMessage.getType().equals(ChatMessage.TYPE_MESSAGE)) {
-                Message notification = new Message("Friend Request Sent", false);
+                Message notification = new Message("You are now friends", false, sentMessage.getSenderName());
                 notification.setNotification(true);
                 messageAdapter.addMessage(notification);
                 return;
             }
 
-            Message message = new Message(sentMessage.getMessage(), true);
+            Message message = new Message(sentMessage.getMessage(), true, sentMessage.getSenderName());
             messageAdapter.addMessage(message);
 
             // Clear input and scroll to bottom
@@ -262,7 +264,7 @@ public class ConnectNearbyFragment extends Fragment {
         chatConstraintLayout.setVisibility(View.VISIBLE);
 
         // Add connection notification
-        Message notification = new Message("Connected as " + role, false);
+        Message notification = new Message("Connected as " + role, false, "");
         notification.setNotification(true);
         messageAdapter.addMessage(notification);
     }
@@ -294,7 +296,7 @@ public class ConnectNearbyFragment extends Fragment {
         rippleView = rootView.findViewById(R.id.rippleView);
         cardViewAvailableDevices = rootView.findViewById(R.id.cardViewAvailableDevices);
         listViewDevices = rootView.findViewById(R.id.listViewDevices);
-        scanButton = rootView.findViewById(R.id.scanButton);
+        scanButton = rootView.findViewById(R.id.cancel_discoverButton);
         textViewDescription =rootView.findViewById(R.id.description);
         scan_nearby_people = rootView.findViewById(R.id.connectButton);
         chatConstraintLayout = rootView.findViewById(R.id.chatConstraintLayout);
@@ -383,7 +385,7 @@ public class ConnectNearbyFragment extends Fragment {
     private void btnDisconnect_OnClick(View v) {
         if(isHost) {
             disconnectWifiP2p();
-            ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), ChatMessage.TYPE_COMMAND_DISCONNECT)
+            ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName(),ChatMessage.TYPE_COMMAND_DISCONNECT)
                     .setType(ChatMessage.TYPE_COMMAND_DISCONNECT)
                     .build();
 
@@ -397,7 +399,7 @@ public class ConnectNearbyFragment extends Fragment {
             });
         }
         else {
-            ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), ChatMessage.TYPE_COMMAND_DISCONNECT)
+            ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName(),ChatMessage.TYPE_COMMAND_DISCONNECT)
                     .setType(ChatMessage.TYPE_COMMAND_DISCONNECT)
                     .build();
 
@@ -418,7 +420,7 @@ public class ConnectNearbyFragment extends Fragment {
     private void btnAddFriend_OnClick() {
         Toast.makeText(getContext(), "ADD FRIEND", Toast.LENGTH_SHORT).show();
         String message = "Friend Request";
-        ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), message)
+        ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName(), message)
                 .setType(ChatMessage.TYPE_COMMAND_FRIEND_REQUEST)
                 .build();
 
@@ -488,7 +490,9 @@ public class ConnectNearbyFragment extends Fragment {
 
         if(message.isEmpty()) return;
 
-        ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), message).build();
+
+
+        ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName(), message).build();
         updateUI_OnMessageSend(chatMessage);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -506,11 +510,7 @@ public class ConnectNearbyFragment extends Fragment {
     }
 
     private void cancel_scan_onClick() {
-        rippleView.stopRippleEffect();
-        scan_nearby_people.setVisibility(View.GONE);
-        textViewDescription.setVisibility(View.GONE);
-        constraintLayoutTitle.setVisibility(View.GONE);
-        cardViewAvailableDevices.setVisibility(View.VISIBLE);
+        restartApp(getContext());
     }
 
     @Override

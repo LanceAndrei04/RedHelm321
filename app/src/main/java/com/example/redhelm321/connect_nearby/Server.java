@@ -70,11 +70,12 @@ public class Server extends Thread {
         public void run() {
             try {
                 while (true) {
-                    String sender = inputStream.readUTF();
+                    String senderId = inputStream.readUTF();
+                    String senderName = inputStream.readUTF();
                     String message = inputStream.readUTF();
                     String type = inputStream.readUTF();
 
-                    ChatMessage chatMessage = new ChatMessage.Builder(sender, message)
+                    ChatMessage chatMessage = new ChatMessage.Builder(senderId, senderName, message)
                             .setType(type)
                             .build();
 
@@ -89,7 +90,8 @@ public class Server extends Thread {
 
         public void sendMessage(ChatMessage message) {
             try {
-                outputStream.writeUTF(message.getSender());
+                outputStream.writeUTF(message.getSenderId());
+                outputStream.writeUTF(message.getSenderName());
                 outputStream.writeUTF(message.getMessage());
                 outputStream.writeUTF(message.getType());
                 outputStream.flush();
