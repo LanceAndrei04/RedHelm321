@@ -382,6 +382,7 @@ public class ConnectNearbyFragment extends Fragment {
 
     private void btnDisconnect_OnClick(View v) {
         if(isHost) {
+            disconnectWifiP2p();
             ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), ChatMessage.TYPE_COMMAND_DISCONNECT)
                     .setType(ChatMessage.TYPE_COMMAND_DISCONNECT)
                     .build();
@@ -394,8 +395,6 @@ public class ConnectNearbyFragment extends Fragment {
                     serverClass.broadcastMessage(chatMessage);
                 }
             });
-            disconnectWifiP2p();
-            
         }
         else {
             ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), ChatMessage.TYPE_COMMAND_DISCONNECT)
