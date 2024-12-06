@@ -142,7 +142,7 @@ public class ConnectNearbyFragment extends Fragment {
         peerListListener = new WifiP2pManager.PeerListListener() {
             @Override
             public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-                Toast.makeText(getContext(), "Devices Available", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "Devices Available", Toast.LENGTH_SHORT).show();
                 updateDiscoveredDevices(wifiP2pDeviceList);
             }
         };
@@ -256,7 +256,7 @@ public class ConnectNearbyFragment extends Fragment {
 
     private void updateDiscoveredDevices(WifiP2pDeviceList wifiP2pDeviceList) {
 //        Toast.makeText(getContext(), "DEVICES AVAILABLE", Toast.LENGTH_SHORT).show();
-        if (!wifiP2pDeviceList.getDeviceList().isEmpty()) {
+        if (!wifiP2pDeviceList.getDeviceList().isEmpty() && (serverClass == null && clientClass == null)) {
             rippleView.stopRippleEffect();
             scan_nearby_people.setVisibility(View.GONE);
             textViewDescription.setVisibility(View.GONE);
