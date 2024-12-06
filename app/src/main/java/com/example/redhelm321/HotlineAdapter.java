@@ -3,6 +3,7 @@ package com.example.redhelm321;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,8 @@ public class HotlineAdapter extends RecyclerView.Adapter<HotlineAdapter.HotlineV
 
     public interface OnHotlineClickListener {
         void onHotlineClick(HotlineItem hotline);
+        void onDeleteClick(HotlineItem hotline);
+        void onDeleteConfirmed(HotlineItem hotline);
     }
 
     public HotlineAdapter(List<HotlineItem> hotlineList, OnHotlineClickListener listener) {
@@ -43,6 +46,12 @@ public class HotlineAdapter extends RecyclerView.Adapter<HotlineAdapter.HotlineV
                 listener.onHotlineClick(hotline);
             }
         });
+
+        holder.deleteButton.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDeleteClick(hotline);
+            }
+        });
     }
 
     @Override
@@ -54,12 +63,14 @@ public class HotlineAdapter extends RecyclerView.Adapter<HotlineAdapter.HotlineV
         TextView nameTextView;
         TextView numberTextView;
         TextView descriptionTextView;
+        ImageButton deleteButton;
 
         public HotlineViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
             numberTextView = itemView.findViewById(R.id.numberTextView);
             descriptionTextView = itemView.findViewById(R.id.descriptionTextView);
+            deleteButton = itemView.findViewById(R.id.deleteButton);
         }
     }
 }

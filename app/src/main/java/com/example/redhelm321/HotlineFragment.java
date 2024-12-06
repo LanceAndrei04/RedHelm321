@@ -11,7 +11,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -124,5 +123,26 @@ public class HotlineFragment extends Fragment implements HotlineAdapter.OnHotlin
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + hotline.getNumber()));
         startActivity(intent);
+    }
+
+    @Override
+    public void onDeleteClick(HotlineItem hotline) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Hotline")
+                .setMessage("Are you sure you want to delete this hotline?")
+                .setPositiveButton("Delete", (dialog, which) -> onDeleteConfirmed(hotline))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    @Override
+    public void onDeleteConfirmed(HotlineItem hotline) {
+        if (hotline.getId() != null) {
+            mDatabase.child(hotline.getId()).removeValue()
+                    .addOnSuccessListener(aVoid -> Toast.makeText(getContext(),
+                            "Hotline deleted successfully", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(getContext(),
+                            "Failed to delete hotline", Toast.LENGTH_SHORT).show());
+        }
     }
 }
