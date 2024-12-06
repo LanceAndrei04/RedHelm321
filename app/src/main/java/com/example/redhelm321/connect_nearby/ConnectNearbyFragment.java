@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -355,7 +356,25 @@ public class ConnectNearbyFragment extends Fragment {
                 wifiP2pManager.removeGroup(wifiP2pChannel, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {
-                        restartApp(getContext());
+                        ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName(),ChatMessage.TYPE_COMMAND_DISCONNECT)
+                                .setType(ChatMessage.TYPE_COMMAND_DISCONNECT)
+                                .build();
+
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+                        executorService.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                serverClass.broadcastMessage(chatMessage);
+                            }
+                        });
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                restartApp(getContext());
+                            }
+                        }, 800);
                     }
 
                     @Override
@@ -385,18 +404,7 @@ public class ConnectNearbyFragment extends Fragment {
     private void btnDisconnect_OnClick(View v) {
         if(isHost) {
             disconnectWifiP2p();
-            ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName(),ChatMessage.TYPE_COMMAND_DISCONNECT)
-                    .setType(ChatMessage.TYPE_COMMAND_DISCONNECT)
-                    .build();
 
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    serverClass.broadcastMessage(chatMessage);
-                }
-            });
         }
         else {
             ChatMessage chatMessage = new ChatMessage.Builder(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName(),ChatMessage.TYPE_COMMAND_DISCONNECT)
