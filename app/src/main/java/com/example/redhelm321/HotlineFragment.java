@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,8 +78,7 @@ public class HotlineFragment extends Fragment implements HotlineAdapter.OnHotlin
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load hotlines: " + error.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                Log.d("DEBUG_HOTLINE", "Failed to load hotlines: " + error.getMessage());
             }
         });
     }

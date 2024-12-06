@@ -56,7 +56,7 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
     private FloatingActionButton fbtn_editImageButton;
     private ListView contactListView;
     private EditText contactInputEditText;
-    private ImageButton addContactButton;
+    private ImageButton addContactButton, addContactButtonQR;
     private TextInputEditText et_nameEditText, et_emailEditText, et_contactNumberEditText, et_birthdayEditText, et_bloodTypeEditText, et_addressEditText;
     private Button saveButton, logoutButton, viewContactsBtn, shareProfileBtn;
     private LinearLayout profileForm, contactListLayout;
@@ -122,6 +122,8 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         contactListView = view.findViewById(R.id.contactListView);
         contactInputEditText = view.findViewById(R.id.contactInputEditText);
         addContactButton = view.findViewById(R.id.addContactButton);
+        addContactButtonQR = view.findViewById(R.id.addContactButtonQR);
+
 
         // Birthday picker setup
         EditText birthdayEditText = view.findViewById(R.id.birthdayEditText);
@@ -131,7 +133,12 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
         saveButton.setOnClickListener(v -> updateProfileInDatabase());
         logoutButton.setOnClickListener(v -> {
             mAuth.signOut();
-            restartApp(getContext());
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    restartApp(getContext());
+                }
+            }, 1000);
         });
 
         viewContactsBtn.setOnClickListener(v -> {
@@ -142,10 +149,21 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
             addContactToList();
         });
 
+        addContactButtonQR.setOnClickListener(v -> addContactButtonQR(v));
+
         // Set up share profile button click listener
         shareProfileBtn.setOnClickListener(v -> {
             showProfileShareDialog();
         });
+    }
+
+    private void addContactButtonQR(View v) {
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Volume up to flash on");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLaucher.launch(options);
     }
 
     public void loadProfileFromDatabase() {
@@ -185,13 +203,6 @@ public class ProfileFragment extends Fragment implements ActionProvider.Visibili
             });
 
 
-        } else {
-            ScanOptions options = new ScanOptions();
-            options.setPrompt("Volume up to flash on");
-            options.setBeepEnabled(true);
-            options.setOrientationLocked(true);
-            options.setCaptureActivity(CaptureAct.class);
-            barLaucher.launch(options);
         }
     }
 

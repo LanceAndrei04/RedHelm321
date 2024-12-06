@@ -301,6 +301,16 @@
                         android:padding="8dp"
                         />
                     <ImageButton
+                        android:id="@+id/addContactButtonQR"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/ic_qr_scan"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Add Contact"
+                        app:tint="@color/red_primary" />
+
+                    <ImageButton
                         android:id="@+id/addContactButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
