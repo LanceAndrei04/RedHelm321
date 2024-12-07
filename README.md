@@ -214,14 +214,14 @@
 
 <h2 id="redhelm-321-developers">💻 REDHELM 321 Developers</h2>
 
+- **Caguicla, Fhil Joshua P.**  
+  - [GitHub](https://github.com/HusPhil)  
+  - [Facebook](https://facebook.com/username)  
+
 - **Espina, Lance Andrei R.**  
   - [GitHub](https://github.com/LanceAndrei04)  
   - [Facebook](https://www.facebook.com/lance.espina.30)  
   - [Instagram](https://www.instagram.com/calen_ndr)  
-
-- **Caguicla, Fhil Joshua P.**  
-  - [GitHub](https://github.com/HusPhil)  
-  - [Facebook](https://facebook.com/username)  
 
 - **Evangelista, Aeron M.**  
   - [GitHub](https://github.com/AeronEvangelista)  
