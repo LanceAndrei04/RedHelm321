@@ -187,7 +187,7 @@
     <td colspan="3" style="text-align: center;">
       <!-- Video Link (Thumbnail as a Clickable Link) -->
       <a href="https://drive.google.com/drive/folders/1gEQG7MPJ2-iWa8rS4d8eSTiofjwexw2w" target="_blank">
-        <img src="" alt="Video Thumbnail"/>
+        <img src="./readme_assets/preview_vid.png" alt="Video Thumbnail"/>
       </a>
       <p>📹 Scanning Nearby Devices</p>
     </td>
