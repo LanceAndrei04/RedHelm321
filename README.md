@@ -3,7 +3,7 @@
             padding: 15px; 
             border-radius: 15px; 
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-  <img src="main/redhelm_bg.png" alt="Redhelm" width="1800" style="border-radius: 10px;"/>
+  <img src="redhelm_bg.png" alt="Redhelm" width="1800" style="border-radius: 10px;"/>
 </div>
 
 
@@ -129,6 +129,9 @@ Integrated to enable location-based features.
 
 These technologies work together to create REDHELM—a dynamic, reliable, and user-friendly mobile application that connects users and ensures their safety.
 
+
+---
+
 >### **REDHELM 321 Developers**  
 - **Espina, Lance Andrei R.**  
   - [GitHub](https://github.com/LanceAndrei04)  
@@ -144,6 +147,7 @@ These technologies work together to create REDHELM—a dynamic, reliable, and us
   - [Facebook](https://www.facebook.com/mr.poginglamig)  
   - [Instagram](https://www.instagram.com/evangelistaaeron/) 
 
+---
   
 <div style="border: 2px solid #ccc; padding: 15px; border-radius: 10px; margin-bottom: 20px; margin-top: 20px;">
 <h2 id="acknowledgments" style="text-align: center;margin-top: 0px;">🙏 Acknowledgments</h2>
