@@ -92,15 +92,7 @@ A foundational programming language used for the core functionality and business
     <li> Strong compatibility with the Android ecosystem.
 </ul>
 
-<h3> 3. Kotlin</h3>
-A modern language that complements Java in Android development. Benefits include:
-<ul>
-    <li>Concise syntax for faster development.
-    <li>Enhanced safety features, such as null safety, to prevent runtime crashes.
-    <li>Full interoperability with Java for a flexible development process.
-</ul>
-
-<h3> 4. XML</h3>
+<h3> 3. XML</h3>
 Used extensively for:
 <ul>
     <li>Designing user interfaces (UI) with layouts, buttons, and widgets.
@@ -109,7 +101,7 @@ Used extensively for:
 
 ### ☁️ Backend and Database
 
-<h3> 5. Firebase</h3>
+<h3> 4. Firebase</h3>
 Google’s powerful backend-as-a-service platform used for:
 <ul>
     <li>Authentication: Secure user login using Google sign-in.
@@ -120,7 +112,7 @@ Google’s powerful backend-as-a-service platform used for:
 
 ### 📍 Geolocation and Mapping
 
-<h3> 6. Google Maps API</h3>
+<h3> 5. Google Maps API</h3>
 Integrated to enable location-based features.
 <ul>
     <li>Helps visualize connections and navigate user locations.
