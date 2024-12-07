@@ -6,133 +6,217 @@
   <img src="redhelm_bg.png" alt="Redhelm" width="1800" style="border-radius: 10px;"/>
 </div>
 
-
 <div style="text-align: center;">
   <h1 style="margin: 0;">REDHELM 321</h1>  
   <p style="margin: 0; font-style: italic;">*Connecting Lives, Securing Tomorrow.*</p>
 </div>
 
-<div style="text-align: justify;">
-  <h2 style="background-color: rgba(0, 0, 0, 0.1); 
-             padding: 15px; 
-             border-radius: 10px; 
-             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
-             transition: transform 0.3s ease, box-shadow 0.3s ease;">
-    🚀 Introduction
-  </h2>
-  <p><strong>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REDHELM 321</strong> is an innovative application designed to seamlessly integrate communication, safety, and connectivity. By leveraging modern technology, it empowers users to broadcast their presence, connect with others nearby, and share crucial updates about their well-being. Whether you're reaching out for help, marking yourself safe, or building new connections, Redhelm ensures that you're always in touch with the people who matter most. Packed with features like real-time communication, friend requests, and profile sharing through QR codes, Redhelm redefines how we connect in moments of both urgency and everyday interaction.</p>
-</div>
+---
 
-<h2 style="background-color: rgba(0, 0, 0, 0.1); 
-                           padding: 15px; 
-                           border-radius: 10px; 
-                           box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
-                           transition: transform 0.3s ease, box-shadow 0.3s ease;">
-    🛠️ Features
-</h2>
+### 📑 Table of Contents
+1. [Introduction](#introduction)  
+2. [Features](#features)  
+   - [🔒 Authentication](#authentication)  
+   - [🔗 Connect](#connect)  
+   - [📌 Status](#status)  
+   - [👤 Profile](#profile)  
+   - [📱 Widget Support](#widget-support)  
+3. [Technologies Used](#technologies-used)  
+   - [🛠️ Development Tools and Frameworks](#development-tools-and-frameworks)  
+     - [Android Studio](#android-studio)  
+     - [Java](#java)  
+     - [Kotlin](#kotlin)  
+     - [XML](#xml)  
+   - [☁️ Backend and Database](#backend-and-database)  
+     - [Firebase](#firebase)  
+   - [📍 Geolocation and Mapping](#geolocation-and-mapping)  
+     - [Google Maps API](#google-maps-api)
+4. [App Preview](#app-preview)     
+5. [REDHELM 321 Developers](#redhelm-321-developers)  
+6. [Acknowledgments](#acknowledgments)  
 
-<h3 id="discussion-and-learning-modules">1. 🔒Authentication</h3>
+---
+
+<h2 id="introduction">🚀 Introduction</h2>
+
+<p><strong>REDHELM 321</strong> is an innovative application designed to seamlessly integrate communication, safety, and connectivity. By leveraging modern technology, it empowers users to broadcast their presence, connect with others nearby, and share crucial updates about their well-being. Whether you're reaching out for help, marking yourself safe, or building new connections, Redhelm ensures that you're always in touch with the people who matter most.</p>
+
+---
+
+<h2 id="features">🛠️ Features</h2>
+
+<h3 id="authentication">1. 🔒 Authentication</h3>
 <ul>
   <li>Login Using Google: Effortlessly log in using your Google account for secure access.</li>
 </ul>
 
-<h3>2. 🔗Connect</h3>
+<h3 id="connect">2. 🔗 Connect</h3>
 <ul>
-    <li><strong>Broadcast Your Device:</strong> Share your location/presence with nearby users.
-    <li><strong>Scan and Connect:</strong>  Discover and connect with nearby users in real time.
-    <li><strong>Make a Conversation:</strong> Start a chat with your connections instantly.
-    <li><strong>Send Friend Requests:</strong> Expand your network by sending friend requests.
+  <li><strong>Broadcast Your Device:</strong> Share your location/presence with nearby users.</li>
+  <li><strong>Connect Nearby:</strong> Communicate directly with nearby users without requiring Wi-Fi or mobile data by leveraging Wi-Fi Direct technology.</li>
+  <li><strong>Scan and Connect:</strong> Discover and connect with nearby users in real time.</li>
+  <li><strong>Make a Conversation:</strong> Start a chat with your connections instantly.</li>
+  <li><strong>Send Friend Requests:</strong> Expand your network by sending friend requests.</li>
 </ul>
 
-<h3>3. 📌Status</h3>
+<h3 id="status">3. 📌 Status</h3>
 <ul>
-    <li><strong>Mark Safe:</strong> Let others know you are safe with a single click.
-    <li><strong>Need Help:</strong> Notify your network or send an alert when assistance is required.
-    <li><strong>Make a Conversation:</strong> Start a chat with your connections instantly.
-    <li><strong>View Friends' Status:</strong> Stay updated on your friends' safety statuses.
+  <li><strong>Mark Safe:</strong> Let others know you are safe with a single click.</li>
+  <li><strong>Need Help:</strong> Notify your network or send an alert when assistance is required. This feature includes a loud audible sound to attract immediate attention during emergencies.</li>
+  <li><strong>View Friends' Status:</strong> Stay updated on your friends' safety statuses.</li>
 </ul>
 
-<h3>4. 👤Profile</h3>
+<h3 id="profile">4. 👤 Profile</h3>
 <ul>
-    <li><strong>Edit Your Profile:</strong> Update your personal details to reflect your latest information.
-    <li><strong>Share Your Account Using QR:</strong> Easily share your profile with others using a QR code.
-    <li><strong>Add Friends Using QR: </strong> Quickly add new friends by scanning their QR codes.
-    <li><strong>View Contacts:</strong> Access a list of your friends and connections conveniently.
+  <li><strong>Edit Your Profile:</strong> Update your personal details to reflect your latest information.</li>
+  <li><strong>Share Your Account Using QR:</strong> Easily share your profile with others using a QR code.</li>
+  <li><strong>Add Friends Using QR:</strong> Quickly add new friends by scanning their QR codes.</li>
+  <li><strong>View Contacts:</strong> Access a list of your friends and connections conveniently.</li>
 </ul>
 
-<h3>5. 📱 Widget Support</h3>
-<ul>
-    <li> Add REDHELM as a widget on your home screen for instant access to status updates, connections, and quick actions.
 
+<h3 id="hotlines">5. 📞 Hotlines</h3>
+<ul>
+  <li>Access a curated list of important emergency hotlines, such as police, fire, and medical services, directly from the app.</li>
+  <li>Quickly dial emergency numbers in moments of crisis with one tap.</li>
 </ul>
 
-<h2 style="background-color: rgba(0, 0, 0, 0.1); 
-                           padding: 15px; 
-                           border-radius: 10px; 
-                           box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
-                           transition: transform 0.3s ease, box-shadow 0.3s ease;">
-    🖥️Technologies Used
-</h2>
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; REDHELM leverages a variety of modern technologies to deliver a seamless, efficient, and feature-rich user experience. Below is a breakdown of the key technologies used in its development:
-
-### 🛠️ Development Tools and Frameworks
-
-<h3>1. Android Studio</h3>
-The official IDE for Android development. It provides:
+<h3 id="widget-support">6. 📱 Widget Support</h3>
 <ul>
-    <li> A robust environment for building and testing the application.
-    <li> Integrated tools for debugging, emulation, and optimizing app performance.
+  <li>Add REDHELM as a widget on your home screen for instant access to status updates, connections, and quick actions.</li>
 </ul>
-
-<h3> 2. Java</h3>
-A foundational programming language used for the core functionality and business logic of REDHELM. Key features include:
-<ul>
-    <li>Object-oriented structure for modular and reusable code.
-    <li> Strong compatibility with the Android ecosystem.
-</ul>
-
-<h3> 3. Kotlin</h3>
-A modern language that complements Java in Android development. Benefits include:
-<ul>
-    <li>Concise syntax for faster development.
-    <li>Enhanced safety features, such as null safety, to prevent runtime crashes.
-    <li>Full interoperability with Java for a flexible development process.
-</ul>
-
-<h3> 4. XML</h3>
-Used extensively for:
-<ul>
-    <li>Designing user interfaces (UI) with layouts, buttons, and widgets.
-    <li>Defining application resources such as strings, colors, and themes.
-</ul>
-
-### ☁️ Backend and Database
-
-<h3> 5. Firebase</h3>
-Google’s powerful backend-as-a-service platform used for:
-<ul>
-    <li>Authentication: Secure user login using Google sign-in.
-    <li>Realtime Database: Syncing user data such as statuses, profiles, and connections in real-time.
-    <li>Cloud Storage: Storing user-generated content like profile pictures and QR codes.
-    <li>Push Notifications: Keeping users informed with real-time alerts and updates.
-</ul>
-
-### 📍 Geolocation and Mapping
-
-<h3> 6. Google Maps API</h3>
-Integrated to enable location-based features.
-<ul>
-    <li>Helps visualize connections and navigate user locations.
-    <li>Adds geolocation capabilities to enhance safety features like real-time status updates.
-</ul>
-
-These technologies work together to create REDHELM—a dynamic, reliable, and user-friendly mobile application that connects users and ensures their safety.
-
 
 ---
 
->### **REDHELM 321 Developers**  
+<h2 id="technologies-used">🖥️ Technologies Used</h2>
+
+<h3 id="development-tools-and-frameworks">🛠️ Development Tools and Frameworks</h3>
+
+<h4 id="android-studio">1. Android Studio</h4>
+<ul>
+  <li>The official IDE for Android development, providing a robust environment for building and testing the application.</li>
+</ul>
+
+<h4 id="java">2. Java</h4>
+<ul>
+  <li>A foundational programming language used for the core functionality and business logic of REDHELM.</li>
+</ul>
+
+<h4 id="kotlin">3. Kotlin</h4>
+<ul>
+  <li>A modern language complementing Java, offering concise syntax and enhanced safety features.</li>
+</ul>
+
+<h4 id="xml">4. XML</h4>
+<ul>
+  <li>Extensively used for UI design and defining application resources.</li>
+</ul>
+
+<h3 id="backend-and-database">☁️ Backend and Database</h3>
+
+<h4 id="firebase">5. Firebase</h4>
+<ul>
+  <li>Google's backend-as-a-service platform for authentication, real-time data syncing, cloud storage, and push notifications.</li>
+</ul>
+
+<h3 id="geolocation-and-mapping">📍 Geolocation and Mapping</h3>
+
+<h4 id="google-maps-api">6. Google Maps API</h4>
+<ul>
+  <li>Enables location-based features, such as visualizing connections and navigating user locations.</li>
+</ul>
+
+---
+
+<div id="app-preview" style="text-align: center; margin: 20px 0;">
+  <h2>📱 App Preview</h2>
+  <p>Explore the key features of REDHELM 321 with the following screenshots and descriptions:</p>
+</div>
+
+
+<!-- Three-row Layout -->
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+
+  <!-- First Row -->
+  <div style="display: flex; justify-content: center; width: 100%; gap: 20px; margin-bottom: 20px;">
+    <div style="text-align: center;">
+      <img src="src/assets/splash_screen.jpg" alt="Splash Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>Splash Screen</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="src/assets/login.jpg" alt="Authentication Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>🔒 Authentication</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="src/assets/connect_nearby.jpg" alt="Connect Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>🔗 Connect</p>
+    </div>
+  </div>
+
+  <!-- Second Row -->
+  <div style="display: flex; justify-content: center; width: 100%; gap: 20px; margin-bottom: 20px;">
+    <div style="text-align: center;">
+      <img src="src/assets/hotlines.jpg" alt="Hotlines Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>📞 Hotlines</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="src/assets/status1.jpg" alt="Status Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>📌 Status</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="src/assets/profile.jpg" alt="Profile Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>👤 Profile</p>
+    </div>
+  </div>
+
+  <!-- Third Row -->
+  <div style="display: flex; justify-content: center; width: 100%; gap: 20px;">
+    <div style="text-align: center;">
+      <img src="src/assets/qr_code.jpg" alt="QR Sharing" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>🤝 QR Sharing</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="src/assets/contacts.jpg" alt="Contacts Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>📇 Contacts</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="src/assets/messages.jpg" alt="Messages Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>💬 Messages</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- Video and Additional Images -->
+<div style="margin-top: 40px;">
+
+  <!-- Video Section -->
+  <div style="text-align: center; margin-bottom: 20px;">
+    <video controls style="width: 100%; max-width: 500px; border-radius: 10px;">
+      <source src="src/assets/scanning_nearby_devices.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <p>📹 Scanning Nearby Devices</p>
+  </div>
+
+  <!-- Additional Images -->
+  <div style="display: flex; justify-content: center; gap: 20px;">
+    <div style="text-align: center;">
+      <img src="src/assets/available_devices.jpg" alt="Feature 1" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>📱Connected with available devices</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="src/assets/widget.jpg" alt="Feature 2" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <p>📱Widget Feature</p>
+    </div>
+  </div>
+
+</div>
+
+
+
+<h2 id="redhelm-321-developers">💻 REDHELM 321 Developers</h2>
+
 - **Espina, Lance Andrei R.**  
   - [GitHub](https://github.com/LanceAndrei04)  
   - [Facebook](https://www.facebook.com/lance.espina.30)  
@@ -147,16 +231,16 @@ These technologies work together to create REDHELM—a dynamic, reliable, and us
   - [Facebook](https://www.facebook.com/mr.poginglamig)  
   - [Instagram](https://www.instagram.com/evangelistaaeron/) 
 
----
-  
-<div style="border: 2px solid #ccc; padding: 15px; border-radius: 10px; margin-bottom: 20px; margin-top: 20px;">
-<h2 style="text-align: center;margin-top: 0px;">🙏 Acknowledgments</h2>
-  <p style="text-align: justify;">We would like to extend our gratitude to the following individuals for their invaluable support and guidance:</p>
-  <ul style="text-align: justify;">
-    <li><strong>Mr. Poul Isaac De Chavez</strong> – for his invaluable guidance, support, and encouragement throughout the development of this project. His expertise and dedication have inspired us to push our boundaries and bring this vision to life.</li>
-    <li><strong>Our Development Team</strong> – For their dedication, perseverance, and unwavering belief in their abilities. Their continuous efforts, innovative thinking, and teamwork were the driving forces behind this project’s success. We are proud of the progress and commitment shown by each member in overcoming challenges and delivering a high-quality learning platform.</li>
-    <li><strong>Our Families and Friends</strong> – For their constant encouragement and support throughout the project.</li>
-  </ul>
-  <p style="text-align: justify;">We also acknowledge the open-source libraries and tools that made this project possible.</p>
-</div>
 
+---
+
+<div id="acknowledgments" style="border: 2px solid #ccc; padding: 15px; border-radius: 10px; margin-bottom: 20px; margin-top: 20px;">
+<h2 style="text-align: center; margin-top: 0px;">🙏 Acknowledgments</h2>
+  <p>We would like to extend our gratitude to the following individuals for their invaluable support and guidance:</p>
+  <ul>
+    <li><strong>Mr. Poul Isaac De Chavez:</strong> For his guidance and encouragement throughout this project.</li>
+    <li><strong>Our Development Team:</strong> For their dedication, innovation, and teamwork.</li>
+    <li><strong>Our Families and Friends:</strong> For their constant encouragement and support.</li>
+  </ul>
+  <p>We also acknowledge the open-source libraries and tools that made this project possible.</p>
+</div>
