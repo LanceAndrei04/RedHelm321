@@ -133,85 +133,82 @@
   <p>Explore the key features of REDHELM 321 with the following screenshots and descriptions:</p>
 </div>
 
-
-<!-- Three-row Layout -->
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-
-  <!-- First Row -->
-  <div style="display: flex; justify-content: center; width: 100%; gap: 20px; margin-bottom: 20px;">
-    <div style="text-align: center;">
-      <img src="readme_assets/splash_screen.jpg" alt="Splash Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+<!-- Three-row Grid Layout using Table -->
+<table>
+  <tr>
+    <td style="text-align: center;">
+      <img src="./readme_assets/splash_screen.jpg" alt="Splash Screen" >
       <p>Splash Screen</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="readme_assets/login.jpg" alt="Authentication Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+    <td style="text-align: center;">
+      <img src="./readme_assets/login.jpg" alt="Authentication Screen">
       <p>🔒 Authentication</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="readme_assets/connect_nearby.jpg" alt="Connect Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+    <td style="text-align: center;">
+      <img src="./readme_assets/connect_nearby.jpg" alt="Connect Screen">
       <p>🔗 Connect</p>
-    </div>
-  </div>
-
-  <!-- Second Row -->
-  <div style="display: flex; justify-content: center; width: 100%; gap: 20px; margin-bottom: 20px;">
-    <div style="text-align: center;">
-      <img src="readme_assets/hotlines.jpg" alt="Hotlines Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">
+      <img src="./readme_assets/hotlines.jpg" alt="Hotlines Screen" >
       <p>📞 Hotlines</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="readme_assets/status1.jpg" alt="Status Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+    <td style="text-align: center;">
+      <img src="./readme_assets/status1.jpg" alt="Status Screen" >
       <p>📌 Status</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="readme_assets/profile.jpg" alt="Profile Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+    <td style="text-align: center;">
+      <img src="./readme_assets/profile.jpg" alt="Profile Screen" >
       <p>👤 Profile</p>
-    </div>
-  </div>
-
-  <!-- Third Row -->
-  <div style="display: flex; justify-content: center; width: 100%; gap: 20px;">
-    <div style="text-align: center;">
-      <img src="readme_assets/qr_code.jpg" alt="QR Sharing" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align: center;">
+      <img src="./readme_assets/qr_code.jpg" alt="QR Sharing" >
       <p>🤝 QR Sharing</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="readme_assets/contacts.jpg" alt="Contacts Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+    <td style="text-align: center;">
+      <img src="./readme_assets/contacts.jpg" alt="Contacts Screen" >
       <p>📇 Contacts</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="readme_assets/messages.jpg" alt="Messages Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+    </td>
+    <td style="text-align: center;">
+      <img src="./readme_assets/messages.jpg" alt="Messages Screen">
       <p>💬 Messages</p>
-    </div>
-  </div>
-</div>
+    </td>
+  </tr>
+</table>
 
 
-<!-- Video and Additional Images -->
-<div style="margin-top: 40px;">
+<!-- Combined Table Layout for Video and Additional Images -->
+<table>
+  <!-- Video Section (Thumbnail as Link) -->
+  <tr>
+    <td colspan="3" style="text-align: center;">
+      <!-- Video Link (Thumbnail as a Clickable Link) -->
+      <a href="https://drive.google.com/drive/folders/1gEQG7MPJ2-iWa8rS4d8eSTiofjwexw2w" target="_blank">
+        <img src="" alt="Video Thumbnail"/>
+      </a>
+      <p>📹 Scanning Nearby Devices</p>
+    </td>
+  </tr>
 
-  <!-- Video Section -->
-  <div style="text-align: center; margin-bottom: 20px;">
-    <video controls style="width: 100%; max-width: 500px; border-radius: 10px;">
-      <source src="src/assets/scanning_nearby_devices.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <p>📹 Scanning Nearby Devices</p>
-  </div>
+  <!-- Additional Images Section -->
+  <tr>
+    <td style="text-align: center;">
+      <img src="readme_assets/available_devices.jpg" alt="Feature 1" />
+      <p>📱 Connected with available devices</p>
+    </td>
+    <td style="text-align: center;">
+      <img src="readme_assets/widget.jpg" alt="Feature 2" />
+      <p>📱 Widget Feature</p>
+    </td>
+    <td style="text-align: center;">
+      <!-- Empty cell for spacing, if needed -->
+    </td>
+  </tr>
+</table>
 
-  <!-- Additional Images -->
-  <div style="display: flex; justify-content: center; gap: 20px;">
-    <div style="text-align: center;">
-      <img src="src/assets/available_devices.jpg" alt="Feature 1" style="width: 100%; max-width: 150px; border-radius: 10px;">
-      <p>📱Connected with available devices</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="src/assets/widget.jpg" alt="Feature 2" style="width: 100%; max-width: 150px; border-radius: 10px;">
-      <p>📱Widget Feature</p>
-    </div>
-  </div>
-
-</div>
 
 
 
