@@ -47,7 +47,7 @@
    <p>Explore the key features of REDHELM 321</p>
    <img src="./readme_assets/redhelm_preview.png" alt="App Preview" style="max-width: 100%; height: auto; margin-top: 10px;">
    <p>Scan your friend now!</p>
-   <img src="./readme_assets/redhelm_demo.gif" alt="App Demo GIF" style="max-width: 100%; height: auto; margin-top: 10px;">
+   <img src="./readme_assets/redhelm_demo.gif" alt="App Demo GIF" style="max-width: 500px; height: auto; margin-top: 10px;">
 </div>
 
 ---
