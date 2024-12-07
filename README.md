@@ -3,7 +3,7 @@
             padding: 15px; 
             border-radius: 15px; 
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-  <img src="redhelm_bg.png" alt="Redhelm" width="1800" style="border-radius: 10px;"/>
+  <img src="readme_assets/redhelm_bg.png" alt="Redhelm" width="1800" style="border-radius: 10px;"/>
 </div>
 
 <div style="text-align: center;">
@@ -140,15 +140,15 @@
   <!-- First Row -->
   <div style="display: flex; justify-content: center; width: 100%; gap: 20px; margin-bottom: 20px;">
     <div style="text-align: center;">
-      <img src="src/assets/splash_screen.jpg" alt="Splash Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/splash_screen.jpg" alt="Splash Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>Splash Screen</p>
     </div>
     <div style="text-align: center;">
-      <img src="src/assets/login.jpg" alt="Authentication Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/login.jpg" alt="Authentication Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>🔒 Authentication</p>
     </div>
     <div style="text-align: center;">
-      <img src="src/assets/connect_nearby.jpg" alt="Connect Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/connect_nearby.jpg" alt="Connect Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>🔗 Connect</p>
     </div>
   </div>
@@ -156,15 +156,15 @@
   <!-- Second Row -->
   <div style="display: flex; justify-content: center; width: 100%; gap: 20px; margin-bottom: 20px;">
     <div style="text-align: center;">
-      <img src="src/assets/hotlines.jpg" alt="Hotlines Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/hotlines.jpg" alt="Hotlines Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>📞 Hotlines</p>
     </div>
     <div style="text-align: center;">
-      <img src="src/assets/status1.jpg" alt="Status Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/status1.jpg" alt="Status Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>📌 Status</p>
     </div>
     <div style="text-align: center;">
-      <img src="src/assets/profile.jpg" alt="Profile Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/profile.jpg" alt="Profile Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>👤 Profile</p>
     </div>
   </div>
@@ -172,15 +172,15 @@
   <!-- Third Row -->
   <div style="display: flex; justify-content: center; width: 100%; gap: 20px;">
     <div style="text-align: center;">
-      <img src="src/assets/qr_code.jpg" alt="QR Sharing" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/qr_code.jpg" alt="QR Sharing" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>🤝 QR Sharing</p>
     </div>
     <div style="text-align: center;">
-      <img src="src/assets/contacts.jpg" alt="Contacts Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/contacts.jpg" alt="Contacts Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>📇 Contacts</p>
     </div>
     <div style="text-align: center;">
-      <img src="src/assets/messages.jpg" alt="Messages Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
+      <img src="readme_assets/messages.jpg" alt="Messages Screen" style="width: 100%; max-width: 150px; border-radius: 10px;">
       <p>💬 Messages</p>
     </div>
   </div>
