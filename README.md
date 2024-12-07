@@ -43,81 +43,12 @@
 ---
 
 <div id="app-preview" style="text-align: center; margin: 20px 0;">
-  <h2>📱 App Preview</h2>
-  <p>Explore the key features of REDHELM 321 with the following screenshots and descriptions:</p>
-<img src="./readme_assets/redhelm_preview.png" alt="App Preview" style="max-width: 100%; height: auto; margin-top: 10px;">
+   <h2>📱 App Preview</h2>
+   <p>Explore the key features of REDHELM 321</p>
+   <img src="./readme_assets/redhelm_preview.png" alt="App Preview" style="max-width: 100%; height: auto; margin-top: 10px;">
+   <p>Scan your friend now!</p>
+   <img src="./readme_assets/redhelm_demo.gif" alt="App Demo GIF" style="max-width: 100%; height: auto; margin-top: 10px;">
 </div>
-
-
-<!-- Three-row Grid Layout using Table -->
-<table>
-  <tr>
-    <td style="text-align: center;">
-      <img src="./readme_assets/splash_screen.jpg" alt="Splash Screen" >
-      <p>Splash Screen</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="./readme_assets/login.jpg" alt="Authentication Screen">
-      <p>🔒 Authentication</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="./readme_assets/connect_nearby.jpg" alt="Connect Screen">
-      <p>🔗 Connect</p>
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">
-      <img src="./readme_assets/hotlines.jpg" alt="Hotlines Screen" >
-      <p>📞 Hotlines</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="./readme_assets/status1.jpg" alt="Status Screen" >
-      <p>📌 Status</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="./readme_assets/profile.jpg" alt="Profile Screen" >
-      <p>👤 Profile</p>
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align: center;">
-      <img src="./readme_assets/qr_code.jpg" alt="QR Sharing" >
-      <p>🤝 QR Sharing</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="./readme_assets/contacts.jpg" alt="Contacts Screen" >
-      <p>📇 Contacts</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="./readme_assets/messages.jpg" alt="Messages Screen">
-      <p>💬 Messages</p>
-    </td>
-  </tr>
-</table>
-
-
-<!-- Combined Table Layout for Video and Additional Images -->
-<table>
-  <!-- Video Section (Thumbnail as Link) -->
-  <tr>
-   
-  </tr>
-
-  <!-- Additional Images Section -->
-  <tr>
-    <td style="text-align: center;">
-      <img src="readme_assets/available_devices.jpg" alt="Feature 1" />
-      <p>📱 Connected with available devices</p>
-    </td>
-    <td style="text-align: center;">
-      <img src="readme_assets/widget.jpg" alt="Feature 2" />
-      <p>📱 Widget Feature</p>
-    </td>
-    <td style="text-align: center;">
-      <!-- Empty cell for spacing, if needed -->
-    </td>
-  </tr>
-</table>
 
 ---
 
