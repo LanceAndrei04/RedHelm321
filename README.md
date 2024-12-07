@@ -45,7 +45,9 @@
 <div id="app-preview" style="text-align: center; margin: 20px 0;">
   <h2>📱 App Preview</h2>
   <p>Explore the key features of REDHELM 321 with the following screenshots and descriptions:</p>
+<img src="./readme_assets/redhelm_preview.png" alt="App Preview" style="max-width: 100%; height: auto; margin-top: 10px;">
 </div>
+
 
 <!-- Three-row Grid Layout using Table -->
 <table>
@@ -98,13 +100,7 @@
 <table>
   <!-- Video Section (Thumbnail as Link) -->
   <tr>
-    <td colspan="3" style="text-align: center;">
-      <!-- Video Link (Thumbnail as a Clickable Link) -->
-      <a href="https://drive.google.com/drive/folders/1gEQG7MPJ2-iWa8rS4d8eSTiofjwexw2w" target="_blank">
-        <img src="./readme_assets/preview_vid.png" alt="Video Thumbnail"/>
-      </a>
-      <p>📹 Scanning Nearby Devices</p>
-    </td>
+   
   </tr>
 
   <!-- Additional Images Section -->
