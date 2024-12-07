@@ -3,7 +3,7 @@
             padding: 15px; 
             border-radius: 15px; 
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
-  <img src="main/redhelmbg.png" alt="Redhelm" width="1800" style="border-radius: 10px;"/>
+  <img src="main/redhelm_bg.png" alt="Redhelm" width="1800" style="border-radius: 10px;"/>
 </div>
 
 
